@@ -1,0 +1,223 @@
+"""Spotipy Playground"""
+import requests
+import json
+from typing import List, NamedTuple
+
+import spotipy
+import spotipy.util
+
+
+CLIENT_ID = "f0ae48ba465242f89ccbd7e3a9d0121b"
+CLIENT_SECRET = "286882c16615498b9feeaff1e1418394"
+REDIRECT_URI = "http://localhost:9080"
+
+
+class Track(NamedTuple):
+    """"""
+
+    uri: str
+    name: str
+
+
+class Artist(NamedTuple):
+    """"""
+
+    uri: str
+    name: str
+
+
+class UserProfile:
+    def __init__(self, username):
+        self.username = username
+
+        # self.spotify = spotipy.Spotify(auth=spotipy.util.prompt_for_user_token(
+        #     "", "", CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
+        # ))
+
+        self.artists = {}
+        self.tracks = {}
+
+    def get_ordered_artists(self):
+        return list(reversed(sorted(self.artists.values(), key=lambda item: item["count"])))
+
+    def get_ordered_tracks(self):
+        return list(reversed(sorted(self.tracks.values(), key=lambda item: item["count"])))
+
+    def add_artists(self, new_artists: List[Artist]):
+        for artist in new_artists:
+            if artist.uri in self.artists:
+                self.artists[artist.uri]["count"] += 1
+            else:
+                self.artists[artist.uri] = {
+                    "uri": artist.uri,
+                    "name": artist.name,
+                    "count": 1,
+                }
+
+    def add_tracks(self, new_tracks: List[Track]):
+        for track in new_tracks:
+            if track.uri in self.tracks:
+                self.tracks[track.uri]["count"] = 2
+            else:
+                self.tracks[track.uri] = {
+                    "uri": track.uri,
+                    "name": track.name,
+                    "count": 1,
+                }
+
+    def _get_user_library_read_token(self) -> str:
+        token = spotipy.util.prompt_for_user_token(
+            self.username, "user-library-read", CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
+        )
+        if not token:
+            raise RuntimeError(f"Can't get token for: {self.username}")
+        else:
+            return token
+
+    def get_current_user_saved_tracks_data(self, limit: int = 20) -> None:
+        user_library_spotify = spotipy.Spotify(auth=self._get_user_library_read_token())
+        try:
+            current_user_saved_tracks = user_library_spotify.current_user_saved_tracks(
+                limit=limit
+            )
+        except requests.exceptions.HTTPError as exc:
+            print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
+            return
+        except Exception as exc:
+            print(f"Error: {exc.__class__.__name__} - {exc}")
+            return
+
+        artists = []
+        tracks = []
+        for item in current_user_saved_tracks["items"]:
+            track = item["track"]
+            tracks.append(Track(uri=track["uri"], name=track["name"]))
+
+            for artist in track["artists"]:
+                artists.append(Artist(uri=artist["uri"], name=artist["name"]))
+
+        self.add_artists(artists)
+        self.add_tracks(tracks)
+
+    def _get_user_top_read_token(self) -> str:
+        token = spotipy.util.prompt_for_user_token(
+            self.username, "user-top-read", CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
+        )
+        if not token:
+            raise RuntimeError(f"Can't get token for: {self.username}")
+        else:
+            return token
+
+    def get_current_user_top_artists(
+        self, limit: int = 20, time_range: str = "medium_term"
+    ) -> None:
+        user_top_spotify = spotipy.Spotify(auth=self._get_user_top_read_token())
+        try:
+            top_artists_data = user_top_spotify.current_user_top_artists(
+                limit=limit, time_range=time_range
+            )
+        except requests.exceptions.HTTPError as exc:
+            print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
+            return
+        except Exception as exc:
+            print(f"Error: {exc.__class__.__name__} - {exc}")
+            return
+
+        artists = []
+        for artist in top_artists_data["items"]:
+            artists.append(Artist(uri=artist["uri"], name=artist["name"]))
+
+        self.add_artists(artists)
+
+    def get_current_user_top_tracks(
+        self, limit: int = 20, time_range: str = "medium_term"
+    ) -> None:
+        user_top_spotify = spotipy.Spotify(auth=self._get_user_top_read_token())
+        try:
+            top_tracks_data = user_top_spotify.current_user_top_tracks(
+                limit=limit, time_range=time_range
+            )
+        except requests.exceptions.HTTPError as exc:
+            print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
+            return
+        except Exception as exc:
+            print(f"Error: {exc.__class__.__name__} - {exc}")
+            return
+
+        artists = []
+        tracks = []
+        for track in top_tracks_data["items"]:
+            tracks.append(Track(uri=track["uri"], name=track["name"]))
+
+            for artist in track["artists"]:
+                artists.append(Artist(uri=artist["uri"], name=artist["name"]))
+
+        self.add_artists(artists)
+        self.add_tracks(tracks)
+
+    def _get_playlist_read_private_token(self) -> str:
+        token = spotipy.util.prompt_for_user_token(
+            self.username,
+            "playlist-read-private",
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REDIRECT_URI,
+        )
+        if not token:
+            raise RuntimeError(f"Can't get token for: {self.username}")
+        else:
+            return token
+
+    def current_user_playlist_scan(self, limit: int = 10) -> None:
+        user_playlist_spotify = spotipy.Spotify(
+            auth=self._get_playlist_read_private_token()
+        )
+        try:
+            if limit > 50:
+                print("Paganation is not setup. Defaulting to 50")
+                limit = 50
+            playlist_data = user_playlist_spotify.current_user_playlists(limit=limit)
+        except requests.exceptions.HTTPError as exc:
+            print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
+            return
+        except Exception as exc:
+            print(f"Error: {exc.__class__.__name__} - {exc}")
+            return
+
+        artists = []
+        tracks = []
+        for playlist in playlist_data["items"]:
+            playlist_data = user_playlist_spotify.playlist(playlist['id'],fields="tracks,next")
+
+            tracks = playlist_data["tracks"]
+            for item in tracks["items"]:
+                track = item["track"]
+
+                tracks.append(Track(uri=track["uri"], name=track["name"]))
+
+                for artist in track["artists"]:
+                    artists.append(Artist(uri=artist["uri"], name=artist["name"]))
+
+            # Get further pagenations
+            # while tracks['next']:
+            #         tracks = sp.next(tracks)
+            #         for track in tracks:
+            #             track_uris.append(track["uri"])
+
+        self.add_artists(artists)
+        self.add_tracks(tracks)
+
+
+if __name__ == "__main__":
+    user_profile = UserProfile("rghusbands")
+
+    number_of_tracks = 50
+    time = "long_term"
+
+    # user_profile.get_current_user_top_artists(number_of_tracks, time)
+    # user_profile.get_current_user_top_tracks(number_of_tracks, time)
+    # user_profile.get_current_user_saved_tracks_data(number_of_tracks)
+    # user_profile.current_user_playlist_scan(10)  # This ones slow. Don't raise it too high
+
+    print(f"Ordered artists: {user_profile.get_ordered_artists()}\n")
+    print(f"Ordered tracks: {user_profile.get_ordered_tracks()}\n")
