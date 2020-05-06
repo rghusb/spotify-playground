@@ -1,7 +1,7 @@
 """Spotipy Playground"""
 import requests
 import json
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional
 
 import spotipy
 import spotipy.util
@@ -38,10 +38,14 @@ class UserProfile:
         self.tracks = {}
 
     def get_ordered_artists(self):
-        return list(reversed(sorted(self.artists.values(), key=lambda item: item["count"])))
+        return list(
+            reversed(sorted(self.artists.values(), key=lambda item: item["count"]))
+        )
 
     def get_ordered_tracks(self):
-        return list(reversed(sorted(self.tracks.values(), key=lambda item: item["count"])))
+        return list(
+            reversed(sorted(self.tracks.values(), key=lambda item: item["count"]))
+        )
 
     def add_artists(self, new_artists: List[Artist]):
         for artist in new_artists:
@@ -146,6 +150,7 @@ class UserProfile:
 
         artists = []
         tracks = []
+        print(top_tracks_data.keys())
         for track in top_tracks_data["items"]:
             tracks.append(Track(uri=track["uri"], name=track["name"]))
 
@@ -189,8 +194,8 @@ class UserProfile:
         for playlist in playlist_data["items"]:
             playlist_data = user_playlist_spotify.playlist(playlist['id'],fields="tracks,next")
 
-            tracks = playlist_data["tracks"]
-            for item in tracks["items"]:
+            playlist_tracks = playlist_data["tracks"]
+            for item in playlist_tracks["items"]:
                 track = item["track"]
 
                 tracks.append(Track(uri=track["uri"], name=track["name"]))
@@ -200,24 +205,55 @@ class UserProfile:
 
             # Get further pagenations
             # while tracks['next']:
-            #         tracks = sp.next(tracks)
+            #         tracks = user_playlist_spotify.next(tracks)
             #         for track in tracks:
             #             track_uris.append(track["uri"])
 
         self.add_artists(artists)
         self.add_tracks(tracks)
 
+    def _get_user_follow_read_token(self) -> str:
+        token = spotipy.util.prompt_for_user_token(
+            self.username, "user-follow-read", CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
+        )
+        if not token:
+            raise RuntimeError(f"Can't get token for: {self.username}")
+        else:
+            return token
+
+    def get_current_user_followed_artists(
+        self, limit: int = 20, after: Optional[str] = None
+    ) -> None:
+        user_followed_spotify = spotipy.Spotify(auth=self._get_user_follow_read_token())
+        try:
+            user_followed_data = user_followed_spotify.current_user_followed_artists(
+                limit=limit, after=after
+            )
+        except requests.exceptions.HTTPError as exc:
+            print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
+            return
+        except Exception as exc:
+            print(f"Error: {exc.__class__.__name__} - {exc}")
+            return
+
+        artists = []
+        for artist in user_followed_data["artists"]["items"]:
+            artists.append(Artist(uri=artist["uri"], name=artist["name"]))
+
+        self.add_artists(artists)
+
 
 if __name__ == "__main__":
     user_profile = UserProfile("rghusbands")
 
     number_of_tracks = 50
-    time = "long_term"
+    time = "medium_term"
 
     # user_profile.get_current_user_top_artists(number_of_tracks, time)
     # user_profile.get_current_user_top_tracks(number_of_tracks, time)
     # user_profile.get_current_user_saved_tracks_data(number_of_tracks)
-    # user_profile.current_user_playlist_scan(10)  # This ones slow. Don't raise it too high
+    # user_profile.current_user_playlist_scan(1)
+    # user_profile.get_current_user_followed_artists(20)
 
-    print(f"Ordered artists: {user_profile.get_ordered_artists()}\n")
-    print(f"Ordered tracks: {user_profile.get_ordered_tracks()}\n")
+    # print(f"Ordered artists: {user_profile.get_ordered_artists()}\n")
+    # print(f"Ordered tracks: {user_profile.get_ordered_tracks()}\n")
