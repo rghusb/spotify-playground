@@ -1,27 +1,46 @@
 """User Profile module"""
 import requests
-from typing import List, Optional
+from typing import NamedTuple, List, Optional
 
 import spotipy
 import spotipy.util
 
-from spotify import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, Track, Artist, DataPull
+from app.constants import (
+    SAVED_TRACKS_PULL_TYPE,
+    TOP_ARTISTS_PULL_TYPE,
+    TOP_TRACKS_PULL_TYPE,
+    FOLLOWED_ARTISTS_PULL_TYPE,
+)
+from app.spotify import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
 
 
-class UserProfile:
+class Track(NamedTuple):
+    """"""
+
+    uri: str
+    name: str
+
+
+class Artist(NamedTuple):
+    """"""
+
+    uri: str
+    name: str
+
+
+class DataPull(NamedTuple):
+    """"""
+
+    artists: List[Artist]
+    tracks: List[Track]
+    type: str
+
+
+class UserData:
+    """Interface to manage user Spotify data."""
+
     def __init__(self, username):
         self.username = username
-
-        self.user_library_spotify = None
-        self.user_top_spotify = None
-        self.user_playlists_spotify = None
-        self.user_followed_spotify = None
-
-        self.saved_tracks: List[DataPull] = []
-        self.top_artists: List[DataPull] = []
-        self.top_tracks: List[DataPull] = []
-        self.user_playlists: List[DataPull] = []
-        self.followed_artists: List[DataPull] = []
 
     def _get_user_library_read_token(self) -> str:
         token = spotipy.util.prompt_for_user_token(
@@ -34,7 +53,8 @@ class UserProfile:
 
     def get_current_user_saved_tracks_data(
         self, limit: int = 20, offset: int = 0
-    ) -> None:
+    ) -> Optional[DataPull]:
+        """ToDo: Fix this for offset"""
         if limit > 20:
             raise RuntimeError("Limit must be 20 or less")
 
@@ -61,7 +81,7 @@ class UserProfile:
             for artist in track["artists"]:
                 artists.append(Artist(uri=artist["uri"], name=artist["name"]))
 
-        self.saved_tracks.append(DataPull(artists=artists, tracks=tracks))
+        return DataPull(artists=artists, tracks=tracks, type=SAVED_TRACKS_PULL_TYPE)
 
     def _get_user_top_read_token(self) -> str:
         token = spotipy.util.prompt_for_user_token(
@@ -74,7 +94,8 @@ class UserProfile:
 
     def get_current_user_top_artists(
         self, limit: int = 20, offset: int = 0, time_range: str = "medium_term"
-    ) -> None:
+    ) -> Optional[DataPull]:
+        """ToDo: Fix this for offset"""
         if limit > 20:
             raise RuntimeError("Limit must be 20 or less")
 
@@ -94,11 +115,12 @@ class UserProfile:
         for artist in top_artists_data["items"]:
             artists.append(Artist(uri=artist["uri"], name=artist["name"]))
 
-        self.top_artists.append(DataPull(artists=artists, tracks=[]))
+        return DataPull(artists=artists, tracks=[], type=TOP_ARTISTS_PULL_TYPE)
 
     def get_current_user_top_tracks(
         self, limit: int = 20, offset: int = 0, time_range: str = "medium_term"
-    ) -> None:
+    ) -> Optional[DataPull]:
+        """ToDo: Fix this for offset"""
         if limit > 20:
             raise RuntimeError("Limit must be 20 or less")
 
@@ -122,62 +144,65 @@ class UserProfile:
             for artist in track["artists"]:
                 artists.append(Artist(uri=artist["uri"], name=artist["name"]))
 
-        self.top_tracks.append(DataPull(artists=artists, tracks=tracks))
+        return DataPull(artists=artists, tracks=tracks, type=TOP_TRACKS_PULL_TYPE)
 
-    def _get_playlist_read_private_token(self) -> str:
-        token = spotipy.util.prompt_for_user_token(
-            self.username,
-            "playlist-read-private",
-            CLIENT_ID,
-            CLIENT_SECRET,
-            REDIRECT_URI,
-        )
-        if not token:
-            raise RuntimeError(f"Can't get token for: {self.username}")
-        else:
-            return token
-
-    def current_user_playlist_scan(self, limit: int = 5, offset: int = 0) -> None:
-        if limit > 50:
-            raise RuntimeError("Limit must be 50 or less")
-
-        try:
-            user_playlist_spotify = spotipy.Spotify(
-                auth=self._get_playlist_read_private_token()
-            )
-            playlist_data = user_playlist_spotify.current_user_playlists(
-                limit=limit, offset=offset
-            )
-        except requests.exceptions.HTTPError as exc:
-            print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
-            return
-        except Exception as exc:
-            print(f"Error: {exc.__class__.__name__} - {exc}")
-            return
-
-        artists = []
-        tracks = []
-        for playlist in playlist_data["items"]:
-            playlist_data = user_playlist_spotify.playlist(
-                playlist["id"], fields="tracks,next"
-            )
-
-            playlist_tracks = playlist_data["tracks"]
-            for item in playlist_tracks["items"]:
-                track = item["track"]
-
-                tracks.append(Track(uri=track["uri"], name=track["name"]))
-
-                for artist in track["artists"]:
-                    artists.append(Artist(uri=artist["uri"], name=artist["name"]))
-
-            # Get further pagenations
-            # while tracks['next']:
-            #         tracks = user_playlist_spotify.next(tracks)
-            #         for track in tracks:
-            #             track_uris.append(track["uri"])
-
-        self.user_playlists.append(DataPull(artists=artists, tracks=tracks))
+    # def _get_playlist_read_private_token(self) -> str:
+    #     token = spotipy.util.prompt_for_user_token(
+    #         self.username,
+    #         "playlist-read-private",
+    #         CLIENT_ID,
+    #         CLIENT_SECRET,
+    #         REDIRECT_URI,
+    #     )
+    #     if not token:
+    #         raise RuntimeError(f"Can't get token for: {self.username}")
+    #     else:
+    #         return token
+    #
+    # def current_user_playlist_scan(
+    #     self, limit: int = 5, offset: int = 0
+    # ) -> Optional[DataPull]:
+    #     """ToDo: Fix this for offset"""
+    #     if limit > 50:
+    #         raise RuntimeError("Limit must be 50 or less")
+    #
+    #     try:
+    #         user_playlist_spotify = spotipy.Spotify(
+    #             auth=self._get_playlist_read_private_token()
+    #         )
+    #         playlist_data = user_playlist_spotify.current_user_playlists(
+    #             limit=limit, offset=offset
+    #         )
+    #     except requests.exceptions.HTTPError as exc:
+    #         print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
+    #         return
+    #     except Exception as exc:
+    #         print(f"Error: {exc.__class__.__name__} - {exc}")
+    #         return
+    #
+    #     artists = []
+    #     tracks = []
+    #     for playlist in playlist_data["items"]:
+    #         playlist_data = user_playlist_spotify.playlist(
+    #             playlist["id"], fields="tracks,next"
+    #         )
+    #
+    #         playlist_tracks = playlist_data["tracks"]
+    #         for item in playlist_tracks["items"]:
+    #             track = item["track"]
+    #
+    #             tracks.append(Track(uri=track["uri"], name=track["name"]))
+    #
+    #             for artist in track["artists"]:
+    #                 artists.append(Artist(uri=artist["uri"], name=artist["name"]))
+    #
+    #         # Get further pagenations
+    #         # while tracks['next']:
+    #         #         tracks = user_playlist_spotify.next(tracks)
+    #         #         for track in tracks:
+    #         #             track_uris.append(track["uri"])
+    #
+    #     return DataPull(artists=artists, tracks=tracks)
 
     def _get_user_follow_read_token(self) -> str:
         token = spotipy.util.prompt_for_user_token(
@@ -190,7 +215,8 @@ class UserProfile:
 
     def get_current_user_followed_artists(
         self, limit: int = 20, after: Optional[str] = None
-    ) -> None:
+    ) -> Optional[DataPull]:
+        """ToDo: Fix this for offset"""
         if limit > 20:
             raise RuntimeError("Limit must be 20 or less")
 
@@ -203,13 +229,13 @@ class UserProfile:
             )
         except requests.exceptions.HTTPError as exc:
             print(f"HTTPError accessing Spotify API: {exc.__class__.__name__} - {exc}")
-            return
+            return None
         except Exception as exc:
             print(f"Error: {exc.__class__.__name__} - {exc}")
-            return
+            return None
 
         artists = []
         for artist in user_followed_data["artists"]["items"]:
             artists.append(Artist(uri=artist["uri"], name=artist["name"]))
 
-        self.followed_artists.append(DataPull(artists=artists, tracks=[]))
+        return DataPull(artists=artists, tracks=[], type=FOLLOWED_ARTISTS_PULL_TYPE)
