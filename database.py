@@ -1,4 +1,4 @@
-"""Database"""
+"""Database Interface"""
 from app import db
 
 

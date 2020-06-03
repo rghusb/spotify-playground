@@ -14,12 +14,16 @@ class Artists(db.Model):
     uri = db.Column("uri", db.String(128))
 
 
-def add_artist(name: str, uri: str) -> Optional[Artists]:
+def add_artist(name: str, uri: str) -> Artists:
     """"""
-    if query_name(name) is not None:
-        raise RuntimeError(f"Artist already exists with name: {name} - uri: {uri}")
+    existing_artist = query_name(name)
+    if existing_artist:
+        return existing_artist
 
-    return Artists(name=name, uri=uri)
+    print(f"Artist added. Name: {name} - URI: {uri}")
+    artist = Artists(name=name, uri=uri)
+    db.session.add(artist)
+    return artist
 
 
 def query_name(name: str) -> Optional[Artists]:

@@ -14,20 +14,19 @@ class Tracks(db.Model):
     uri = db.Column("uri", db.String(64))
 
 
-def add_track(name: str, uri: str) -> Optional[Tracks]:
+def add_track(name: str, uri: str) -> Tracks:
     """"""
-    if query_name(name) is None:
-        return None
+    existing_track = query_name(name)
+    if existing_track:
+        return existing_track
 
+    print(f"Track added. Name: {name} - URI: {uri}")
     track = Tracks(name=name, uri=uri)
     db.session.add(track)
-    db.session.commit()
-
     return track
 
 
 def query_name(name: str) -> Optional[Tracks]:
     """"""
     query = db.session.query(Tracks).filter_by(name=name)
-    # query = Tracks.query.get(1)
     return query.first()
