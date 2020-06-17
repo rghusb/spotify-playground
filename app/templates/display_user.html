@@ -4,7 +4,7 @@
 
 <h3>Top Tracks</h3>
 {% for artist in top_tracks %}
-  <p>{{ artist }}</p>
+  <p>{{ artist["name"] }} - {{ artist["count"] }}</p>
 {% else %}
   <p>Zero top tracks</p>
 {% endfor %}
@@ -22,14 +22,14 @@
 
 <h3>Saved Tracks</h3>
 {% for artist in saved_tracks %}
-  <p>{{ artist }}</p>
+  <p>{{ artist["name"] }} - {{ artist["count"] }}</p>
 {% else %}
   <p>Zero saved tracks</p>
 {% endfor %}
 
 <br>
 
-<h3>Followd Artists</h3>
+<h3>Followed Artists</h3>
 {% for artist in followed_artists %}
   <p>{{ artist }}</p>
 {% else %}

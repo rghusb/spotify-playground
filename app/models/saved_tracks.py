@@ -2,25 +2,30 @@
 from typing import Optional
 
 from app import db
-from app.models.artists import Artists
 
-# from app.models.tracks import Tracks
 from app.models.users import Users
 
 
-saved_tracks_artists_association = db.Table(
-    "saved_tracks_artists",
-    db.metadata,
-    db.Column("saved_tracks_id", db.Integer, db.ForeignKey("saved_tracks.id")),
-    db.Column("artists_id", db.Integer, db.ForeignKey("artists.id")),
-)
+class SavedTracksArtistsAssociation(db.Model):
+    """"""
 
-# saved_tracks_tracks_association = db.Table(
-#     "saved_tracks_tracks",
-#     db.metadata,
-#     db.Column("saved_tracks_id", db.Integer, db.ForeignKey("saved_tracks.id")),
-#     db.Column("tracks_id", db.Integer, db.ForeignKey("tracks.id")),
-# )
+    __tablename__ = "saved_tracks_artists_association"
+    saved_tracks_id = db.Column(
+        db.Integer, db.ForeignKey("saved_tracks.id"), primary_key=True
+    )
+    artists_id = db.Column(db.Integer, db.ForeignKey("artists.id"), primary_key=True)
+    saved_tracks = db.relationship("SavedTracks")
+    artists = db.relationship("Artists")
+    count = db.Column(db.Integer, default=1)
+
+
+def query_saved_tracks_artists_association(
+    saved_tracks_id: str, artists_id: str
+) -> Optional[db.session.query]:
+    query = db.session.query(SavedTracksArtistsAssociation).filter_by(
+        saved_tracks_id=saved_tracks_id, artists_id=artists_id
+    )
+    return query
 
 
 class SavedTracks(db.Model):
@@ -31,8 +36,7 @@ class SavedTracks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    artists = db.relationship(Artists, secondary=saved_tracks_artists_association)
-    # tracks = db.relationship(Tracks, secondary=saved_tracks_tracks_association)
+    association = db.relationship("SavedTracksArtistsAssociation")
 
 
 def add_saved_tracks(user: Users) -> SavedTracks:

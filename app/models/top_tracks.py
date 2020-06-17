@@ -2,25 +2,30 @@
 from typing import Optional
 
 from app import db
-from app.models.artists import Artists
 
-# from app.models.tracks import Tracks
 from app.models.users import Users
 
 
-top_tracks_artists_association = db.Table(
-    "top_tracks_artists",
-    db.metadata,
-    db.Column("top_tracks_id", db.Integer, db.ForeignKey("top_tracks.id")),
-    db.Column("artists_id", db.Integer, db.ForeignKey("artists.id")),
-)
+class TopTracksArtistsAssociation(db.Model):
+    """"""
 
-# top_tracks_tracks_association = db.Table(
-#     "top_tracks_tracks",
-#     db.metadata,
-#     db.Column("top_tracks_id", db.Integer, db.ForeignKey("top_tracks.id")),
-#     db.Column("tracks_id", db.Integer, db.ForeignKey("tracks.id")),
-# )
+    __tablename__ = "top_tracks_artists_association"
+    top_tracks_id = db.Column(
+        db.Integer, db.ForeignKey("top_tracks.id"), primary_key=True
+    )
+    artists_id = db.Column(db.Integer, db.ForeignKey("artists.id"), primary_key=True)
+    top_tracks = db.relationship("TopTracks")
+    artists = db.relationship("Artists")
+    count = db.Column(db.Integer, default=1)
+
+
+def query_top_tracks_artists_association(
+    top_tracks_id: str, artists_id: str
+) -> Optional[db.session.query]:
+    query = db.session.query(TopTracksArtistsAssociation).filter_by(
+        top_tracks_id=top_tracks_id, artists_id=artists_id
+    )
+    return query
 
 
 class TopTracks(db.Model):
@@ -31,8 +36,7 @@ class TopTracks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    artists = db.relationship(Artists, secondary=top_tracks_artists_association)
-    # tracks = db.relationship(Tracks, secondary=top_tracks_tracks_association)
+    association = db.relationship("TopTracksArtistsAssociation")
 
 
 def add_top_tracks(user: Users) -> TopTracks:
