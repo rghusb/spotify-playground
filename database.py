@@ -1,5 +1,5 @@
 """Database Interface"""
-from app import db
+from myapp import db
 
 
 def create_tables():

@@ -5,7 +5,7 @@ from typing import NamedTuple, List, Optional
 import spotipy
 import spotipy.util
 
-from app.constants import (
+from myapp.constants import (
     SAVED_TRACKS_PULL_TYPE,
     TOP_ARTISTS_PULL_TYPE,
     TOP_TRACKS_PULL_TYPE,
@@ -15,7 +15,7 @@ from app.constants import (
     TOP_READ_SCOPE,
     FOLLOW_READ_SCOPE,
 )
-from app.spotify import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
+from myapp.spotify import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
 
 
 class Track(NamedTuple):

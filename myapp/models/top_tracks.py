@@ -1,9 +1,9 @@
 """"""
 from typing import Optional
 
-from app import db
+from myapp import db
 
-from app.models.users import Users
+from myapp.models.users import Users
 
 
 class TopTracksArtistsAssociation(db.Model):

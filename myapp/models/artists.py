@@ -1,7 +1,7 @@
 """"""
 from typing import Optional
 
-from app import db
+from myapp import db
 
 
 class Artists(db.Model):

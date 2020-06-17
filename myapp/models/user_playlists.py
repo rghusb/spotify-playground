@@ -1,5 +1,5 @@
 """"""
-from app import db
+from myapp import db
 
 
 # user_playlists_artists_association = db.Table(

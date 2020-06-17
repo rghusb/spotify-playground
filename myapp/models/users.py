@@ -1,11 +1,12 @@
 """"""
 from typing import Optional
-from app import db
+from myapp import db
+from myapp import exceptions
 
-# from app.models.top_tracks import TopTracks
-# from app.models.followed_artists import FollowedArtists
-# from app.models.top_artists import TopArtists
-# from app.models.saved_tracks import SavedTracks
+# from myapp.models.top_tracks import TopTracks
+# from myapp.models.followed_artists import FollowedArtists
+# from myapp.models.top_artists import TopArtists
+# from myapp.models.saved_tracks import SavedTracks
 
 
 class Users(db.Model):
@@ -44,7 +45,7 @@ class Users(db.Model):
 def add_user(username: str) -> Users:
     """"""
     if query_username(username) is not None:
-        raise RuntimeError(f"User already exists for username: {username}")
+        raise exceptions.UserAlreadyExistsError(f"{username}")
 
     return Users(username=username)
 

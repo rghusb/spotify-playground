@@ -1,12 +1,12 @@
 """"""
 # Local project imports
-from app import constants
-from app.spotify.user_data import UserData, DataPull
+from myapp import constants
+from myapp.spotify.user_data import UserData, DataPull
 
-from app import db
+from myapp import db
 
 
-from app.models import (
+from myapp.models import (
     artists,
     # tracks,
     users,
