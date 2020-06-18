@@ -35,17 +35,22 @@ def hello_world():
     return "<h1>Spotify Data Collection Project!</h1>"
 
 
+# @app.route("/callback")
+# def callback():
+#     return "<h1>Made it to callback!</h1>"
+
+
 @app.route("/login/", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
         try:
-            add_spotify_user_data(
+            username = add_spotify_user_data(
                 top_tracks_flag=True,
                 top_artists_flag=True,
                 saved_tracks_flag=True,
                 followed_artists_flag=True,
             )
-            return "User Added"
+            return show_user(username)
         except exceptions.UserAlreadyExistsError as exc:
             return show_user(str(exc))
         except Exception as exc:

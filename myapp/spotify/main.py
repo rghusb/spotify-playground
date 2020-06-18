@@ -22,7 +22,7 @@ def add_spotify_user_data(
     top_artists_flag=False,
     saved_tracks_flag=False,
     followed_artists_flag=False,
-) -> None:
+) -> str:
     """"""
 
     # Pull user's data
@@ -71,6 +71,8 @@ def add_spotify_user_data(
 
     db.session.add(user)
     db.session.commit()
+
+    return spotify_username
 
 
 def add_data_pull(user: users.Users, data_pull: DataPull) -> None:
