@@ -1,0 +1,37 @@
+<!doctype html>
+<title>Show User</title>
+<h1>User: {{ username }}</h1>
+
+<!--<h3>Top Tracks</h3>-->
+<!--{% for artist in top_tracks %}-->
+<!--  <p>{{ artist["name"] }} - {{ artist["count"] }}</p>-->
+<!--{% else %}-->
+<!--  <p>Zero top tracks</p>-->
+<!--{% endfor %}-->
+
+<br>
+
+<h3>Top Artists</h3>
+{% for artist in top_artists %}
+  <p>{{ artist }}</p>
+{% else %}
+  <p>Zero top artists</p>
+{% endfor %}
+
+<br>
+
+<!--<h3>Saved Tracks</h3>-->
+<!--{% for artist in saved_tracks %}-->
+<!--  <p>{{ artist["name"] }} - {{ artist["count"] }}</p>-->
+<!--{% else %}-->
+<!--  <p>Zero saved tracks</p>-->
+<!--{% endfor %}-->
+
+<!--<br>-->
+
+<!--<h3>Followed Artists</h3>-->
+<!--{% for artist in followed_artists %}-->
+<!--  <p>{{ artist }}</p>-->
+<!--{% else %}-->
+<!--  <p>Zero followed artists</p>-->
+<!--{% endfor %}-->

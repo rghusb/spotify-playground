@@ -1,7 +1,10 @@
 """"""
+import spotipy
+
 # Local project imports
 from myapp import constants
-from myapp.spotify.user_data import UserData, DataPull
+from myapp.spotify import user_data
+from myapp.spotify.user_data import DataPull
 
 from myapp import db
 
@@ -18,6 +21,7 @@ from myapp.models import (
 
 
 def add_spotify_user_data(
+    user_spotify: spotipy.Spotify,
     top_tracks_flag=False,
     top_artists_flag=False,
     saved_tracks_flag=False,
@@ -28,8 +32,7 @@ def add_spotify_user_data(
     # Pull user's data
     number_of_tracks = 20
     time = "medium_term"
-    spotify_user_data = UserData()
-    spotify_username = spotify_user_data.get_current_user_username()
+    spotify_username = user_data.get_current_user_username(user_spotify)
 
     if not spotify_username:
         raise RuntimeError("Unable to access current user's username.")
@@ -38,32 +41,32 @@ def add_spotify_user_data(
     user = users.add_user(spotify_username)
 
     if top_tracks_flag:
-        top_tracks_pull = spotify_user_data.get_current_user_top_tracks(
-            limit=number_of_tracks, time_range=time
+        top_tracks_pull = user_data.get_current_user_top_tracks(
+            user_spotify, limit=number_of_tracks, time_range=time
         )
         if not top_tracks_pull:
             raise RuntimeError("No top tracks data to add.")
         add_data_pull(user, top_tracks_pull)
 
     if top_artists_flag:
-        top_artists_pull = spotify_user_data.get_current_user_top_artists(
-            number_of_tracks, 0, time
+        top_artists_pull = user_data.get_current_user_top_artists(
+            user_spotify, number_of_tracks, 0, time
         )
         if not top_artists_pull:
             raise RuntimeError("No top artists data to add.")
         add_data_pull(user, top_artists_pull)
 
     if saved_tracks_flag:
-        saved_tracks_pull = spotify_user_data.get_current_user_saved_tracks_data(
-            number_of_tracks, 0
+        saved_tracks_pull = user_data.get_current_user_saved_tracks_data(
+            user_spotify, number_of_tracks, 0
         )
         if not saved_tracks_pull:
             raise RuntimeError("No saved tracks data to add.")
         add_data_pull(user, saved_tracks_pull)
 
     if followed_artists_flag:
-        followed_artists_pull = spotify_user_data.get_current_user_followed_artists(
-            20, None
+        followed_artists_pull = user_data.get_current_user_followed_artists(
+            user_spotify, 20, None
         )
         if not followed_artists_pull:
             raise RuntimeError("No followed artists data to add.")
