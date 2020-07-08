@@ -1,5 +1,6 @@
 """"""
 # Utils
+import os
 # from markupsafe import escape
 import requests
 
@@ -19,11 +20,14 @@ import time
 app = Flask(__name__)
 app.secret_key = "some-secret-key"
 
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+SQLITE_DATABASE_LOCATION = os.path.join(THIS_FOLDER, "..", 'db.sqlite3')
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgresql://postgres:asdf1234@localhost/testDatabase"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE_DATABASE_LOCATION}"
+# app.config[
+#     "SQLALCHEMY_DATABASE_URI"
+# ] = "postgresql://postgres:asdf1234@localhost/testDatabase"
 
 db = SQLAlchemy(app)
 
@@ -163,7 +167,7 @@ def callback():
     sp_oauth = get_current_user_spotify_oath()
     session.clear()
     code = request.args.get("code")
-    token_info = sp_oauth.get_access_token(code)
+    token_info = sp_oauth.get_access_token(code, check_cache=False)
 
     # Saving the access token along with all other token related info
     session["token_info"] = token_info

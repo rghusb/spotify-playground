@@ -50,7 +50,7 @@ def get_current_user_spotify_oath() -> spotipy.oauth2.SpotifyOAuth:
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
         scope=scope,
-        username="current-user",
+        cache_path="current-cache",
     )
     if not spotify_oauth:
         raise RuntimeError(f"Failed to get current user Spotify OAuth.")
