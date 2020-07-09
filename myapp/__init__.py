@@ -36,7 +36,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # MySQL config
 app.config[
     "SQLALCHEMY_DATABASE_URI"
-] = f"mysql+pymysql://rghusb:asdf1234@rghusb.mysql.pythonanywhere-services.com/spotifyDatabase"
+] = f"mysql+pymysql://rghusb:asdf1234@rghusb.mysql.pythonanywhere-services.com/rghusb$spotifyDatabase"
 
 db = SQLAlchemy(app)
 
