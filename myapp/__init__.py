@@ -1,6 +1,7 @@
 """"""
 # Utils
 import os
+
 # from markupsafe import escape
 import requests
 
@@ -20,14 +21,22 @@ import time
 app = Flask(__name__)
 app.secret_key = "some-secret-key"
 
-THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-SQLITE_DATABASE_LOCATION = os.path.join(THIS_FOLDER, "..", 'db.sqlite3')
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE_DATABASE_LOCATION}"
+
+# SQLite config
+# THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+# SQLITE_DATABASE_LOCATION = os.path.join(THIS_FOLDER, "..", 'db.sqlite3')
+# app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE_DATABASE_LOCATION}"
+
+# PostgreSQL config
 # app.config[
 #     "SQLALCHEMY_DATABASE_URI"
 # ] = "postgresql://postgres:asdf1234@localhost/testDatabase"
+
+# MySQL config
+app.config[
+    "SQLALCHEMY_DATABASE_URI"
+] = f"mysql+pymysql://rghusb:asdf1234@rghusb.mysql.pythonanywhere-services.com/spotifyDatabase"
 
 db = SQLAlchemy(app)
 
