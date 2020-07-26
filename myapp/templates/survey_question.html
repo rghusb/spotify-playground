@@ -1,0 +1,43 @@
+{% extends "user_survey.html" %}
+{% block survey_content %}
+
+  {% for question in top_artists_questions %}
+        <fieldset>
+            <legend><b>{{ question }}?</b></legend>
+            <label for="top-artist-yes">Yes:</label>
+            <input type="radio" id="top-artist-yes" name="{{ question }}-top-artist-yes"><br><br>
+            <label for="top-artist-no">No:</label>
+            <input type="radio" id="top-artist-no" name="{{ question }}-top-artist-no">
+        </fieldset>
+        <fieldset>
+            <legend><b>Local artist like {{ question }}?</b></legend>
+            <label for="top-artist-local-yes">Yes:</label>
+            <input type="radio" id="top-artist-local-yes" name="{{ question }}-top-artist-local-yes"><br><br>
+            <label for="top-artist-local-no">No:</label>
+            <input type="radio" id="top-artist-local-no" name="{{ question }}-top-artist-local-no">
+        </fieldset>
+        <br>
+  {% endfor %}
+
+<br>
+<h2>What about these ones?</h2>
+
+  {% for question in top_tracks_questions %}
+        <div>
+            <fieldset>
+                <legend><b>{{ question }}?</b></legend>
+                <label for="top-track-yes">Yes:</label>
+                <input type="radio" id="top-track-yes" name="{{ question }}-top-track-yes"><br><br>
+                <label for="top-track-no">No:</label>
+                <input type="radio" id="top-track-no" name="{{ question }}-top-track-no">
+            </fieldset>
+            <fieldset>
+                <legend><b>Local artist like {{ question }}?</b></legend>
+                <label for="top-track-local-yes">Yes:</label>
+                <input type="radio" id="top-track-local-yes" name="{{ question }}-top-track-local-yes"><br><br>
+                <label for="top-track-local-no">No:</label>
+                <input type="radio" id="top-track-local-no" name="{{ question }}-top-track-local-no">
+            </fieldset>
+        </div>
+  {% endfor %}
+{% endblock %}

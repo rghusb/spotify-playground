@@ -23,6 +23,7 @@ class TopArtists(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     artists = db.relationship(Artists, secondary=top_artists_artists_association)
+    term_length = db.Column("TermLength", db.String(64))
 
 
 def add_top_artists(user: Users) -> TopArtists:

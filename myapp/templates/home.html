@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
+{% block head_content %}
+{% endblock %}
+{% block content %}
+    <div class="text-center">
+        <h1>Spotify Data Collection Project!</h1>
 
-    <head>
-        <style>
-            .center {
-              text-align: center;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div class="center">
-            <h1>Spotify Data Collection Project!</h1>
-
-            <form method="POST" action="/login/">
-                <input type="submit" value="Sign In with Spotify">
-            </form>
-        </div>
-    </body>
-
-</html>
+        <form method="POST" action="/login/">
+            <input type="submit" value="Sign In with Spotify">
+        </form>
+    </div>
+{% endblock %}

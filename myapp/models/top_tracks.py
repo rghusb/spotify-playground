@@ -17,13 +17,14 @@ class TopTracksArtistsAssociation(db.Model):
     top_tracks = db.relationship("TopTracks")
     artists = db.relationship("Artists")
     count = db.Column(db.Integer, default=1)
+    term_length = db.Column("TermLength", db.String(64))
 
 
 def query_top_tracks_artists_association(
-    top_tracks_id: str, artists_id: str
+    top_tracks_id: str, artists_id: str, term_length: str
 ) -> Optional[db.session.query]:
     query = db.session.query(TopTracksArtistsAssociation).filter_by(
-        top_tracks_id=top_tracks_id, artists_id=artists_id
+        top_tracks_id=top_tracks_id, artists_id=artists_id, term_length=term_length,
     )
     return query
 
@@ -37,6 +38,7 @@ class TopTracks(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     association = db.relationship("TopTracksArtistsAssociation")
+    # term_length = db.Column("TermLength", db.String(64))
 
 
 def add_top_tracks(user: Users) -> TopTracks:

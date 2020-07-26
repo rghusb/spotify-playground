@@ -1,21 +1,16 @@
-<!DOCTYPE html>
-<html>
-
-    <head>
-        <style>
+{% extends "base.html" %}
+{% block head_content %}
+    <style>
             .center {
               text-align: center;
             }
         </style>
-    </head>
-
-    <body>
-        <div class="center">
+{% endblock %}
+{% block content %}
+    <div class="center">
             <h2>{{ error }}</h2>
             <form method="GET" action="/home">
                 <input type="submit" value="Go Home">
             </form>
         </div>
-    </body>
-
-</html>
+{% endblock %}

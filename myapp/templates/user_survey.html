@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <b>User: {{ username }}</b>
+    <h1>Would you attend the following live events?</h1>
+    <form action="/save_survey/{{ username }}" method="POST" id="survey">
+      <div id="content">{% block survey_content %}{% endblock %}</div>
+      <br>
+      <input type="submit" value="Submit Survey" />
+    </form>
+{% endblock %}

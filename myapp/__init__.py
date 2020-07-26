@@ -1,6 +1,8 @@
 """"""
 # Utils
 import os
+import re
+from typing import Dict
 
 # from markupsafe import escape
 import requests
@@ -24,9 +26,9 @@ app.secret_key = "some-secret-key"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # SQLite config
-# THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-# SQLITE_DATABASE_LOCATION = os.path.join(THIS_FOLDER, "..", 'db.sqlite3')
-# app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE_DATABASE_LOCATION}"
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+SQLITE_DATABASE_LOCATION = os.path.join(THIS_FOLDER, "..", "db.sqlite3")
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE_DATABASE_LOCATION}"
 
 # PostgreSQL config
 # app.config[
@@ -34,9 +36,9 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # ] = "postgresql://postgres:asdf1234@localhost/testDatabase"
 
 # MySQL config
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = f"mysql+pymysql://rghusb:asdf1234@rghusb.mysql.pythonanywhere-services.com/rghusb$spotifyDatabase"
+# app.config[
+#     "SQLALCHEMY_DATABASE_URI"
+# ] = f"mysql+pymysql://rghusb:asdf1234@rghusb.mysql.pythonanywhere-services.com/rghusb$spotifyDatabase"
 
 db = SQLAlchemy(app)
 
@@ -46,7 +48,7 @@ from myapp.spotify.main import add_spotify_user_data
 from myapp.spotify.user_data import (
     get_current_user_spotify_oath,
     get_authorized_spotify,
-    get_current_user_top_artists,
+    # get_current_user_top_artists,
 )
 
 # Initialize here for db.create_all()
@@ -54,10 +56,11 @@ from myapp.models import (
     artists,
     # tracks,
     users,
-    followed_artists,
-    saved_tracks,
+    # followed_artists,
+    # saved_tracks,
     top_artists,
     top_tracks,
+    survey,
 )
 
 
@@ -67,10 +70,20 @@ def index():
     return render_template("home.html")
 
 
+@app.route("/redirect_home/", methods=["POST", "GET"])
+def redirect_home():
+    return redirect(url_for("index"))
+
+
 @app.route("/clear_session")
 def clear_session():
     session.clear()
     return "<h1>Session cleared!</h1>"
+
+
+@app.route("/thank_you/")
+def thank_you():
+    return "<h1>Thank you for taking the tastes survey!</h1>"
 
 
 @app.route("/login/", methods=["POST", "GET"])
@@ -97,8 +110,8 @@ def login():
                 user_sp,
                 top_tracks_flag=True,
                 top_artists_flag=True,
-                saved_tracks_flag=True,
-                followed_artists_flag=True,
+                # saved_tracks_flag=True,
+                # followed_artists_flag=True,
             )
             return redirect(url_for("show_user", username=username))
 
@@ -142,28 +155,133 @@ def show_user(username=None):
                 user_top_artists = top_artists.query_top_artists(user.id)
                 str_top_artists = [artist.name for artist in user_top_artists.artists]
 
-                user_saved_tracks = saved_tracks.query_saved_tracks(user.id)
-                str_saved_tracks = []
-                for assoc in user_saved_tracks.association:
-                    str_saved_tracks.append(
-                        {"name": assoc.artists.name, "count": assoc.count}
-                    )
+                # user_saved_tracks = saved_tracks.query_saved_tracks(user.id)
+                # str_saved_tracks = []
+                # for assoc in user_saved_tracks.association:
+                #     str_saved_tracks.append(
+                #         {"name": assoc.artists.name, "count": assoc.count}
+                #     )
 
-                user_followed_artists = followed_artists.query_followed_artists(user.id)
-                str_followed_artists = [
-                    artist.name for artist in user_followed_artists.artists
-                ]
+                # user_followed_artists = followed_artists.query_followed_artists(user.id)
+                # str_followed_artists = [
+                #     artist.name for artist in user_followed_artists.artists
+                # ]
 
                 return render_template(
                     "display_user.html",
                     username=username,
                     top_tracks=str_top_tracks,
                     top_artists=str_top_artists,
-                    saved_tracks=str_saved_tracks,
-                    followed_artists=str_followed_artists,
+                    # saved_tracks=str_saved_tracks,
+                    # followed_artists=str_followed_artists,
                 )
             except Exception as exc:
                 return f"{exc.__class__.__name__}: {str(exc)}"
+
+
+@app.route("/user_survey/")
+@app.route("/user_survey/<string:username>")
+def user_survey(username=None):
+    if not username:
+        return "Please add username to url"
+    else:
+        user = users.query_username(username)
+        if not user:
+            return f"No user exists given username: '{username}'"
+        else:
+            try:
+                user_top_tracks = top_tracks.query_top_tracks(user.id)
+                top_tracks_lis = []
+                for assoc in user_top_tracks.association:
+                    top_tracks_lis.append(
+                        {"name": assoc.artists.name, "count": assoc.count}
+                    )
+                sorted_top_tracks = sorted(
+                    top_tracks_lis, key=lambda i: i["count"], reverse=True
+                )
+                sorted_str_top_tracks = [artist["name"] for artist in sorted_top_tracks]
+
+                user_top_artists = top_artists.query_top_artists(user.id)
+                str_top_artists = [artist.name for artist in user_top_artists.artists]
+
+                return render_template(
+                    "survey_question.html",
+                    username=username,
+                    top_artists_questions=str_top_artists[:1],
+                    top_tracks_questions=sorted_str_top_tracks[:1],
+                )
+            except Exception as exc:
+                return f"{exc.__class__.__name__}: {str(exc)}"
+
+
+@app.route("/save_survey/<string:username>", methods=["POST", "GET"])
+def save_survey(username: str):
+    if request.method == "POST":
+        print(f"Saving survey for {username}...")
+        _save_survey_form(request.form, username)
+        return redirect(url_for("thank_you"))
+    else:
+        return "<h1>Can't save survey as GET request</h1>"
+
+
+def _save_survey_form(form: dict, username: str) -> None:
+    """"""
+
+    def _get_artist(txt: str) -> str:
+        lst = txt.split("-")
+        return lst[0]
+
+    def _get_bool(txt):
+        if re.findall("-yes$", txt):
+            return "yes"
+        elif re.findall("-no$", txt):
+            return "no"
+        else:
+            raise RuntimeError("Error with survey form tags.")
+
+    if not isinstance(form, dict):
+        print("Error - form isn't a dictionary.")
+        return None
+
+    for key, value in request.form.items():
+        response_type = None
+        artist = None
+        response = None
+        if re.search("top-artist", key):
+            response_type = "top-artist"
+            artist = _get_artist(key)
+            response = _get_bool(key)
+        elif re.search("top-artist-local", key):
+            response_type = "top-artist-local"
+            artist = _get_artist(key)
+            response = _get_bool(key)
+        elif re.search("top-track", key):
+            response_type = "top-track"
+            artist = _get_artist(key)
+            response = _get_bool(key)
+        elif re.search("top-track-local", key):
+            response_type = "top-track-local"
+            artist = _get_artist(key)
+            response = _get_bool(key)
+        else:
+            raise RuntimeError("Error with survey form tags.")
+
+        current_user = users.query_username(username)
+        print(
+            f"User: {current_user} - Artist: {artist} - Response: {response} - Response Type: {response_type}"
+        )
+
+        if current_user and artist and response_type and response:
+            new_survey = survey.add_survey(
+                current_user.get_user_id(),
+                artist,
+                response_type,
+                response,
+                "medium-term",
+            )
+            db.session.add(new_survey)
+
+    db.session.commit()
 
 
 # authorization-code-flow Step 2.
@@ -182,34 +300,6 @@ def callback():
     session["token_info"] = token_info
 
     return redirect(url_for("login"))
-
-
-# authorization-code-flow Step 3.
-# Use the access token to access the Spotify Web API;
-# Spotify returns requested data
-# @app.route("/data_pull")
-# def data_pull():
-#     session["token_info"], authorized = _get_token(session)
-#     session.modified = True
-#     if not authorized:
-#         return "Not Authorized for SpotiPY data pull."
-#     # data = request.form
-#     token = session.get("token_info").get("access_token")
-#     if not token:
-#         return "No auth token available for SpotiPY data pull."
-#     user_sp = get_authorized_spotify(auth_token=token)
-#     username = user_sp.current_user().get("id", "No username found :(")
-#     top_artists = get_current_user_top_artists(
-#         user_sp, limit=10, time_range="medium_term"
-#     )
-#     if not top_artists:
-#         return "No Top Artists"
-#
-#     return render_template(
-#         "data_pull.html",
-#         username=username,
-#         top_artists=[artist.name for artist in top_artists.artists],
-#     )
 
 
 # Checks to see if token is valid and gets a new token if not
