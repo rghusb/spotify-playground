@@ -48,16 +48,13 @@ from myapp.spotify.main import add_spotify_user_data
 from myapp.spotify.user_data import (
     get_current_user_spotify_oath,
     get_authorized_spotify,
-    # get_current_user_top_artists,
+    get_current_user_username,
 )
 
 # Initialize here for db.create_all()
 from myapp.models import (
     artists,
-    # tracks,
     users,
-    # followed_artists,
-    # saved_tracks,
     top_artists,
     top_tracks,
     survey,
@@ -106,14 +103,25 @@ def login():
                 )
 
             user_sp = get_authorized_spotify(auth_token=token)
-            username = add_spotify_user_data(
+
+            spotify_username = get_current_user_username(user_sp)
+            if not spotify_username:
+                raise RuntimeError("Unable to access current user's username.")
+
+            # Add user
+            user = users.add_user(spotify_username)
+            db.session.add(user)
+
+            add_spotify_user_data(
                 user_sp,
+                user,
                 top_tracks_flag=True,
                 top_artists_flag=True,
-                # saved_tracks_flag=True,
-                # followed_artists_flag=True,
+                time_range="medium_term",
             )
-            return redirect(url_for("show_user", username=username))
+            db.session.commit()
+
+            return redirect(url_for("show_user", username=spotify_username))
 
         except exceptions.UserAlreadyExistsError as exc:
             return redirect(url_for("show_user", username=str(exc)))
@@ -145,35 +153,21 @@ def show_user(username=None):
             return f"No user exists given username: '{username}'"
         else:
             try:
-                user_top_tracks = top_tracks.query_top_tracks(user.id)
+                user_top_tracks = top_tracks.query_top_tracks(user.id, "medium_term")
                 str_top_tracks = []
                 for assoc in user_top_tracks.association:
                     str_top_tracks.append(
                         {"name": assoc.artists.name, "count": assoc.count}
                     )
 
-                user_top_artists = top_artists.query_top_artists(user.id)
+                user_top_artists = top_artists.query_top_artists(user.id, "medium_term")
                 str_top_artists = [artist.name for artist in user_top_artists.artists]
-
-                # user_saved_tracks = saved_tracks.query_saved_tracks(user.id)
-                # str_saved_tracks = []
-                # for assoc in user_saved_tracks.association:
-                #     str_saved_tracks.append(
-                #         {"name": assoc.artists.name, "count": assoc.count}
-                #     )
-
-                # user_followed_artists = followed_artists.query_followed_artists(user.id)
-                # str_followed_artists = [
-                #     artist.name for artist in user_followed_artists.artists
-                # ]
 
                 return render_template(
                     "display_user.html",
                     username=username,
                     top_tracks=str_top_tracks,
                     top_artists=str_top_artists,
-                    # saved_tracks=str_saved_tracks,
-                    # followed_artists=str_followed_artists,
                 )
             except Exception as exc:
                 return f"{exc.__class__.__name__}: {str(exc)}"
@@ -190,7 +184,7 @@ def user_survey(username=None):
             return f"No user exists given username: '{username}'"
         else:
             try:
-                user_top_tracks = top_tracks.query_top_tracks(user.id)
+                user_top_tracks = top_tracks.query_top_tracks(user.id, "medium_term")
                 top_tracks_lis = []
                 for assoc in user_top_tracks.association:
                     top_tracks_lis.append(
@@ -201,7 +195,7 @@ def user_survey(username=None):
                 )
                 sorted_str_top_tracks = [artist["name"] for artist in sorted_top_tracks]
 
-                user_top_artists = top_artists.query_top_artists(user.id)
+                user_top_artists = top_artists.query_top_artists(user.id, "medium_term")
                 str_top_artists = [artist.name for artist in user_top_artists.artists]
 
                 return render_template(

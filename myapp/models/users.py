@@ -19,7 +19,7 @@ class Users(db.Model):
     # spotify_username = db.Column("spotify_username", db.String(64))
 
     # saved_tracks_id = db.Column(db.Integer, db.ForeignKey("saved_tracks.id"))
-    saved_tracks = db.relationship("SavedTracks", backref="users")
+    # saved_tracks = db.relationship("SavedTracks", backref="users")
 
     # top_artists_id = db.Column(db.Integer, db.ForeignKey("top_artists.id"))
     top_artists = db.relationship("TopArtists", backref="users")
@@ -33,7 +33,7 @@ class Users(db.Model):
     # )
 
     # followed_artists_id = db.Column(db.Integer, db.ForeignKey("followed_artists.id"))
-    followed_artists = db.relationship("FollowedArtists", backref="users")
+    # followed_artists = db.relationship("FollowedArtists", backref="users")
 
     def get_user_id(self):
         return self.id

@@ -17,14 +17,13 @@ class TopTracksArtistsAssociation(db.Model):
     top_tracks = db.relationship("TopTracks")
     artists = db.relationship("Artists")
     count = db.Column(db.Integer, default=1)
-    term_length = db.Column("TermLength", db.String(64))
 
 
 def query_top_tracks_artists_association(
-    top_tracks_id: str, artists_id: str, term_length: str
+    top_tracks_id: str, artists_id: str
 ) -> Optional[db.session.query]:
     query = db.session.query(TopTracksArtistsAssociation).filter_by(
-        top_tracks_id=top_tracks_id, artists_id=artists_id, term_length=term_length,
+        top_tracks_id=top_tracks_id, artists_id=artists_id
     )
     return query
 
@@ -36,21 +35,23 @@ class TopTracks(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    time_range = db.Column("TimeRange", db.String(64))
 
     association = db.relationship("TopTracksArtistsAssociation")
-    # term_length = db.Column("TermLength", db.String(64))
 
 
-def add_top_tracks(user: Users) -> TopTracks:
+def add_top_tracks(user: Users, time_range: str) -> TopTracks:
     """"""
-    if query_top_tracks(user.get_user_id()) is not None:
+    if query_top_tracks(user.get_user_id(), time_range) is not None:
         raise RuntimeError(
             f"Top Tracks table already exists for user: {user.get_username()}"
         )
 
-    return TopTracks(users=user)
+    return TopTracks(users=user, time_range=time_range)
 
 
-def query_top_tracks(user_id: str) -> Optional[TopTracks]:
-    query = db.session.query(TopTracks).filter_by(user_id=user_id)
+def query_top_tracks(user_id: str, time_range: str) -> Optional[TopTracks]:
+    query = db.session.query(TopTracks).filter_by(
+        user_id=user_id, time_range=time_range
+    )
     return query.first()

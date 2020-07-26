@@ -2,7 +2,6 @@
 import spotipy
 
 # Local project imports
-from myapp import constants
 from myapp.spotify import user_data
 from myapp.spotify.user_data import DataPull
 
@@ -11,10 +10,7 @@ from myapp import db
 
 from myapp.models import (
     artists,
-    # tracks,
     users,
-    # followed_artists,
-    # saved_tracks,
     top_artists,
     top_tracks,
 )
@@ -22,82 +18,36 @@ from myapp.models import (
 
 def add_spotify_user_data(
     user_spotify: spotipy.Spotify,
+    user: users.Users,
     top_tracks_flag=False,
     top_artists_flag=False,
-    # saved_tracks_flag=False,
-    # followed_artists_flag=False,
-    time_length="medium_term",
-) -> str:
+    time_range="medium_term",
+) -> None:
     """"""
 
     # Pull user's data
-    number_of_tracks = 20
-    # time = "medium_term"
-    spotify_username = user_data.get_current_user_username(user_spotify)
-
-    if not spotify_username:
-        raise RuntimeError("Unable to access current user's username.")
-
-    # Add user
-    user = users.add_user(spotify_username)
+    number_of_tracks = 5
 
     if top_tracks_flag:
         top_tracks_pull = user_data.get_current_user_top_tracks(
-            user_spotify, limit=number_of_tracks, time_range=time_length
+            user_spotify, limit=number_of_tracks, time_range=time_range
         )
         if not top_tracks_pull:
             raise RuntimeError("No top tracks data to add.")
-        add_data_pull(user, top_tracks_pull, time_length)
+        _add_top_tracks(user, top_tracks_pull, time_range)
 
     if top_artists_flag:
         top_artists_pull = user_data.get_current_user_top_artists(
-            user_spotify, number_of_tracks, 0, time_length
+            user_spotify, number_of_tracks, 0, time_range
         )
         if not top_artists_pull:
             raise RuntimeError("No top artists data to add.")
-        add_data_pull(user, top_artists_pull, time_length)
-
-    # if saved_tracks_flag:
-    #     saved_tracks_pull = user_data.get_current_user_saved_tracks_data(
-    #         user_spotify, number_of_tracks, 0
-    #     )
-    #     if not saved_tracks_pull:
-    #         raise RuntimeError("No saved tracks data to add.")
-    #     add_data_pull(user, saved_tracks_pull)
-    #
-    # if followed_artists_flag:
-    #     followed_artists_pull = user_data.get_current_user_followed_artists(
-    #         user_spotify, 20, None
-    #     )
-    #     if not followed_artists_pull:
-    #         raise RuntimeError("No followed artists data to add.")
-    #     add_data_pull(user, followed_artists_pull)
-
-    db.session.add(user)
-    db.session.commit()
-
-    return spotify_username
+        _add_top_artists(user, top_artists_pull, time_range)
 
 
-def add_data_pull(user: users.Users, data_pull: DataPull, time_length: str) -> None:
+def _add_top_tracks(user: users.Users, data_pull: DataPull, time_range: str) -> None:
     """"""
-    if data_pull.type == constants.TOP_TRACKS_PULL_TYPE:
-        _add_top_tracks(user, data_pull, time_length)
-    elif data_pull.type == constants.TOP_ARTISTS_PULL_TYPE:
-        _add_top_artists(user, data_pull, time_length)
-    # elif data_pull.type == constants.SAVED_TRACKS_PULL_TYPE:
-    #     _add_saved_tracks(user, data_pull, time_length)
-    # elif data_pull.type == constants.FOLLOWED_ARTISTS_PULL_TYPE:
-    #     _add_followed_artists(user, data_pull, time_length)
-    else:
-        raise RuntimeError(
-            f"Can't find matching database table for give data pull type: {data_pull.type}"
-        )
-
-
-def _add_top_tracks(user: users.Users, data_pull: DataPull, time_length: str) -> None:
-    """"""
-    top_tracks_table = top_tracks.add_top_tracks(user)
+    top_tracks_table = top_tracks.add_top_tracks(user, time_range)
 
     for artist in data_pull.artists:
         art_ = artists.add_artist(artist.name, artist.uri)
@@ -120,48 +70,12 @@ def _add_top_tracks(user: users.Users, data_pull: DataPull, time_length: str) ->
     db.session.add(top_tracks_table)
 
 
-def _add_top_artists(user: users.Users, data_pull: DataPull, time_length: str) -> None:
+def _add_top_artists(user: users.Users, data_pull: DataPull, time_range: str) -> None:
     """"""
-    top_artists_table = top_artists.add_top_artists(user)
+    top_artists_table = top_artists.add_top_artists(user, time_range)
 
     for artist in data_pull.artists:
         art_ = artists.add_artist(artist.name, artist.uri)
         top_artists_table.artists.append(art_)
 
     db.session.add(top_artists_table)
-
-
-# def _add_saved_tracks(user: users.Users, data_pull: DataPull) -> None:
-#     """"""
-#     saved_tracks_table = saved_tracks.add_saved_tracks(user)
-#
-#     for artist in data_pull.artists:
-#         art_ = artists.add_artist(artist.name, artist.uri)
-#
-#         association_query = saved_tracks.query_saved_tracks_artists_association(
-#             saved_tracks_id=saved_tracks_table.id, artists_id=art_.id
-#         )
-#         # Check if association already exists
-#         if association_query.count() > 0:
-#             existing_association = association_query.first()
-#             existing_association.count += 1
-#             db.session.add(existing_association)
-#         else:
-#             new_association = saved_tracks.SavedTracksArtistsAssociation(
-#                 saved_tracks=saved_tracks_table, artists=art_
-#             )
-#             saved_tracks_table.association.append(new_association)
-#             db.session.add(new_association)
-#
-#     db.session.add(saved_tracks_table)
-
-
-# def _add_followed_artists(user: users.Users, data_pull: DataPull) -> None:
-#     """"""
-#     followed_artists_table = followed_artists.add_followed_artists(user)
-#
-#     for artist in data_pull.artists:
-#         art_ = artists.add_artist(artist.name, artist.uri)
-#         followed_artists_table.artists.append(art_)
-#
-#     db.session.add(followed_artists_table)
