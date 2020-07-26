@@ -41,11 +41,7 @@ def query_sorted_top_tracks(
     top_tracks_lis = []
     for assoc in user_top_tracks.association:
         top_tracks_lis.append(
-            {
-                "name": assoc.artists.name,
-                "count": assoc.count,
-                "rank": assoc.rank,
-            }
+            {"name": assoc.artists.name, "count": assoc.count, "rank": assoc.rank,}
         )
     if top_tracks_lis:
         return sorted(top_tracks_lis, key=lambda i: i["rank"])

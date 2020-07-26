@@ -2,7 +2,7 @@
 # Utils
 import os
 import re
-from typing import Dict
+from typing import Dict, Tuple, List
 
 # from markupsafe import escape
 import requests
@@ -166,14 +166,26 @@ def show_user(username=None):
             )
         else:
             try:
-                sorted_top_tracks_short_term = query_sorted_top_tracks(user.id, "short_term")
-                sorted_top_artists_short_term = query_sorted_top_artists(user.id, "short_term")
+                sorted_top_tracks_short_term = query_sorted_top_tracks(
+                    user.id, "short_term"
+                )
+                sorted_top_artists_short_term = query_sorted_top_artists(
+                    user.id, "short_term"
+                )
 
-                sorted_top_tracks_medium_term = query_sorted_top_tracks(user.id, "medium_term")
-                sorted_top_artists_medium_term = query_sorted_top_artists(user.id, "medium_term")
+                sorted_top_tracks_medium_term = query_sorted_top_tracks(
+                    user.id, "medium_term"
+                )
+                sorted_top_artists_medium_term = query_sorted_top_artists(
+                    user.id, "medium_term"
+                )
 
-                sorted_top_tracks_long_term = query_sorted_top_tracks(user.id, "long_term")
-                sorted_top_artists_long_term = query_sorted_top_artists(user.id, "long_term")
+                sorted_top_tracks_long_term = query_sorted_top_tracks(
+                    user.id, "long_term"
+                )
+                sorted_top_artists_long_term = query_sorted_top_artists(
+                    user.id, "long_term"
+                )
 
                 return render_template(
                     "display_user.html",
@@ -202,19 +214,128 @@ def user_survey(username=None):
             )
         else:
             try:
-                sorted_top_tracks = query_sorted_top_tracks(user.id, "medium_term")
-                sorted_top_artists = query_sorted_top_artists(user.id, "medium_term")
+                qs = 5
+
+                sorted_top_tracks_short_term = query_sorted_top_tracks(
+                    user.id, "short_term"
+                )
+                sorted_top_artists_short_term = query_sorted_top_artists(
+                    user.id, "short_term"
+                )
+
+                sorted_top_tracks_medium_term = query_sorted_top_tracks(
+                    user.id, "medium_term"
+                )
+                sorted_top_artists_medium_term = query_sorted_top_artists(
+                    user.id, "medium_term"
+                )
+
+                sorted_top_tracks_long_term = query_sorted_top_tracks(
+                    user.id, "long_term"
+                )
+                sorted_top_artists_long_term = query_sorted_top_artists(
+                    user.id, "long_term"
+                )
+
+                (
+                    sorted_top_tracks_short_term,
+                    sorted_top_artists_short_term,
+                    sorted_top_tracks_medium_term,
+                    sorted_top_artists_medium_term,
+                    sorted_top_tracks_long_term,
+                    sorted_top_artists_long_term,
+                ) = _remove_duplicate_survey_questions(
+                    sorted_top_tracks_short_term,
+                    sorted_top_artists_short_term,
+                    sorted_top_tracks_medium_term,
+                    sorted_top_artists_medium_term,
+                    sorted_top_tracks_long_term,
+                    sorted_top_artists_long_term,
+                )
 
                 return render_template(
                     "survey_question.html",
                     username=username,
-                    top_artists=sorted_top_artists[:5],
-                    top_tracks=sorted_top_tracks[:5],
+                    top_tracks_short_term=sorted_top_tracks_short_term[:qs],
+                    top_artists_short_term=sorted_top_artists_short_term[:qs],
+                    top_tracks_medium_term=sorted_top_tracks_medium_term[:qs],
+                    top_artists_medium_term=sorted_top_artists_medium_term[:qs],
+                    top_tracks_long_term=sorted_top_tracks_long_term[:qs],
+                    top_artists_long_term=sorted_top_artists_long_term[:qs],
                 )
             except Exception as exc:
                 return render_template(
                     "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
                 )
+
+
+def _remove_duplicate_survey_questions(
+    sorted_top_tracks_short_term,
+    sorted_top_artists_short_term,
+    sorted_top_tracks_medium_term,
+    sorted_top_artists_medium_term,
+    sorted_top_tracks_long_term,
+    sorted_top_artists_long_term,
+) -> Tuple[List, List, List, List, List, List]:
+    """"""
+    seen_artists = []
+
+    # Short term top artists
+    for i, item in enumerate(sorted_top_artists_short_term):
+        artist_name = item["name"]
+        if artist_name in seen_artists:
+            sorted_top_artists_short_term.pop(i)
+        else:
+            seen_artists.append(artist_name)
+
+    # Short term top tracks
+    for i, item in enumerate(sorted_top_tracks_short_term):
+        artist_name = item["name"]
+        if artist_name in seen_artists:
+            sorted_top_tracks_short_term.pop(i)
+        else:
+            seen_artists.append(artist_name)
+
+    # Medium term top artists
+    for i, item in enumerate(sorted_top_artists_medium_term):
+        artist_name = item["name"]
+        if artist_name in seen_artists:
+            sorted_top_artists_medium_term.pop(i)
+        else:
+            seen_artists.append(artist_name)
+
+    # Medium term top tracks
+    for i, item in enumerate(sorted_top_tracks_medium_term):
+        artist_name = item["name"]
+        if artist_name in seen_artists:
+            sorted_top_tracks_medium_term.pop(i)
+        else:
+            seen_artists.append(artist_name)
+
+    # Long term top artists
+    for i, item in enumerate(sorted_top_artists_long_term):
+        artist_name = item["name"]
+        if artist_name in seen_artists:
+            sorted_top_artists_long_term.pop(i)
+        else:
+            seen_artists.append(artist_name)
+
+    # Long term top tracks
+    for i, item in enumerate(sorted_top_tracks_long_term):
+        artist_name = item["name"]
+        if artist_name in seen_artists:
+            sorted_top_tracks_long_term.pop(i)
+        else:
+            seen_artists.append(artist_name)
+
+    return (
+        sorted_top_tracks_short_term,
+        sorted_top_artists_short_term,
+        sorted_top_tracks_medium_term,
+        sorted_top_artists_medium_term,
+        sorted_top_tracks_long_term,
+        sorted_top_artists_long_term,
+    )
 
 
 @app.route("/save_survey/<string:username>", methods=["POST", "GET"])
@@ -240,24 +361,29 @@ def _save_survey_form(form: dict, username: str) -> None:
         return lst[0]
 
     def _get_bool(txt: str) -> str:
-        if re.findall("-yes$", txt):
+        if re.findall("yes", txt):
             return "yes"
-        elif re.findall("-no$", txt):
+        elif re.findall("no", txt):
             return "no"
         else:
             raise RuntimeError("Error getting answer from survey form tags.")
 
     def _get_time_range(txt: str) -> str:
-        for term_length in constants.SPOTIFY_TERM_LENGTHS:
-            if re.findall(term_length, txt):
-                return term_length
-        raise RuntimeError("Error getting time range from survey form tags.")
+        if re.findall("short-term", txt):
+            return "short_term"
+        if re.findall("medium-term", txt):
+            return "medium_term"
+        if re.findall("long-term", txt):
+            return "long_term"
+        else:
+            raise RuntimeError("Error getting time range from survey form tags.")
 
     if not isinstance(form, dict):
         print("Error - form isn't a dictionary.")
         return None
 
     for key, value in request.form.items():
+        # print(f"Key: {key} - Value: {value}")
         response_type = None
         artist = None
         response = None
@@ -265,22 +391,22 @@ def _save_survey_form(form: dict, username: str) -> None:
         if re.search("top-artist-local", key):
             response_type = "top-artist-local"
             artist = _get_artist(key)
-            response = _get_bool(key)
+            response = _get_bool(value)
             time_range = _get_time_range(key)
         elif re.search("top-artist", key):
             response_type = "top-artist"
             artist = _get_artist(key)
-            response = _get_bool(key)
+            response = _get_bool(value)
             time_range = _get_time_range(key)
         elif re.search("top-track-local", key):
             response_type = "top-track-local"
             artist = _get_artist(key)
-            response = _get_bool(key)
+            response = _get_bool(value)
             time_range = _get_time_range(key)
         elif re.search("top-track", key):
             response_type = "top-track"
             artist = _get_artist(key)
-            response = _get_bool(key)
+            response = _get_bool(value)
             time_range = _get_time_range(key)
         else:
             raise RuntimeError("Error with survey form tags.")
@@ -292,11 +418,7 @@ def _save_survey_form(form: dict, username: str) -> None:
 
         if current_user and artist and response_type and response:
             new_survey = survey.add_survey(
-                current_user.get_user_id(),
-                artist,
-                response_type,
-                response,
-                time_range,
+                current_user.get_user_id(), artist, response_type, response, time_range,
             )
             db.session.add(new_survey)
 

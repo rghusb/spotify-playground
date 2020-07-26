@@ -1,41 +1,41 @@
 {% extends "user_survey.html" %}
 {% block short_term %}
 
-  {% for artist in top_artists %}
+  {% for artist in top_artists_short_term %}
         <fieldset>
             <legend><b>{{ artist["name"] }}?</b></legend>
-            <label for="top-artist-short-term-yes">Yes:</label>
-            <input type="radio" id="top-artist-short-term-yes" name="{{ artist['name'] }}-top-artist-short-term-yes"><br><br>
-            <label for="top-artist-short-term-no">No:</label>
-            <input type="radio" id="top-artist-short-term-no" name="{{ artist['name'] }}-top-artist-short-term-no">
+            <label for="{{ artist['name'] }}-top-artist-short-term-yes">Yes:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-short-term-yes" name="{{ artist['name'] }}-top-artist-short-term" value="yes">
+            <label for="{{ artist['name'] }}-top-artist-short-term-no">No:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-short-term-no" name="{{ artist['name'] }}-top-artist-short-term" value="no">
         </fieldset>
         <fieldset>
             <legend><b>Local artist like {{ artist["name"] }}?</b></legend>
-            <label for="top-artist-short-term-local-yes">Yes:</label>
-            <input type="radio" id="top-artist-short-term-local-yes" name="{{ artist['name'] }}-top-artist-short-term-local-yes"><br><br>
-            <label for="top-artist-short-term-local-no">No:</label>
-            <input type="radio" id="top-artist-short-term-local-no" name="{{ artist['name'] }}-top-artist-short-term-local-no">
+            <label for="{{ artist['name'] }}-top-artist-local-short-term-yes">Yes:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-local-short-term-yes" name="{{ artist['name'] }}-top-artist-local-short-term" value="yes">
+            <label for="{{ artist['name'] }}-top-artist-local-short-term-no">No:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-local-short-term-no" name="{{ artist['name'] }}-top-artist-local-short-term" value="no">
         </fieldset>
         <br>
   {% endfor %}
 
 <br>
 
-  {% for artist in top_tracks %}
+  {% for artist in top_tracks_short_term %}
         <div>
             <fieldset>
                 <legend><b>{{ artist["name"] }}?</b></legend>
-                <label for="top-track-short-term-yes">Yes:</label>
-                <input type="radio" id="top-track-short-term-yes" name="{{ artist['name'] }}-top-track-short-term-yes"><br><br>
-                <label for="top-track-short-term-no">No:</label>
-                <input type="radio" id="top-track-short-term-no" name="{{ artist['name'] }}-top-track-short-term-no">
+                <label for="{{ artist['name'] }}-top-track-short-term-yes">Yes:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-short-term-yes" name="{{ artist['name'] }}-top-track-short-term" value="yes">
+                <label for="{{ artist['name'] }}-top-track-short-term-no">No:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-short-term-no" name="{{ artist['name'] }}-top-track-short-term" value="no">
             </fieldset>
             <fieldset>
                 <legend><b>Local artist like {{ artist["name"] }}?</b></legend>
-                <label for="top-track-short-term-local-yes">Yes:</label>
-                <input type="radio" id="top-track-short-term-local-yes" name="{{ artist['name'] }}-top-track-short-term-local-yes"><br><br>
-                <label for="top-track-short-term-local-no">No:</label>
-                <input type="radio" id="top-track-short-term-local-no" name="{{ artist['name'] }}-top-track-short-term-local-no">
+                <label for="{{ artist['name'] }}-top-track-local-short-term-yes">Yes:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-local-short-term-yes" name="{{ artist['name'] }}-top-track-local-short-term" value="yes">
+                <label for="{{ artist['name'] }}-top-track-local-short-term-no">No:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-local-short-term-no" name="{{ artist['name'] }}-top-track-local-short-term" value="no">
             </fieldset>
         </div>
   {% endfor %}
@@ -43,41 +43,41 @@
 
 {% block medium_term %}
 
-  {% for artist in top_artists %}
+  {% for artist in top_artists_medium_term %}
         <fieldset>
             <legend><b>{{ artist["name"] }}?</b></legend>
-            <label for="top-artist-medium-term-yes">Yes:</label>
-            <input type="radio" id="top-artist-medium-term-yes" name="{{ artist['name'] }}-top-artist-medium-term-yes"><br><br>
-            <label for="top-artist-medium-term-no">No:</label>
-            <input type="radio" id="top-artist-medium-term-no" name="{{ artist['name'] }}-top-artist-medium-term-no">
+            <label for="{{ artist['name'] }}-top-artist-medium-term-yes">Yes:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-medium-term-yes" name="{{ artist['name'] }}-top-artist-medium-term" value="yes">
+            <label for="{{ artist['name'] }}-top-artist-medium-term-no">No:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-medium-term-no" name="{{ artist['name'] }}-top-artist-medium-term" value="no">
         </fieldset>
         <fieldset>
             <legend><b>Local artist like {{ artist["name"] }}?</b></legend>
-            <label for="top-artist-medium-term-local-yes">Yes:</label>
-            <input type="radio" id="top-artist-medium-term-local-yes" name="{{ artist['name'] }}-top-artist-medium-term-local-yes"><br><br>
-            <label for="top-artist-medium-term-local-no">No:</label>
-            <input type="radio" id="top-artist-medium-term-local-no" name="{{ artist['name'] }}-top-artist-medium-term-local-no">
+            <label for="{{ artist['name'] }}-top-artist-local-medium-term-yes">Yes:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-local-medium-term-yes" name="{{ artist['name'] }}-top-artist-local-medium-term" value="yes">
+            <label for="{{ artist['name'] }}-top-artist-local-medium-term-no">No:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-local-medium-term-no" name="{{ artist['name'] }}-top-artist-local-medium-term" value="no">
         </fieldset>
         <br>
   {% endfor %}
 
 <br>
 
-  {% for artist in top_tracks %}
+  {% for artist in top_tracks_medium_term %}
         <div>
             <fieldset>
                 <legend><b>{{ artist["name"] }}?</b></legend>
-                <label for="top-track-medium-term-yes">Yes:</label>
-                <input type="radio" id="top-track-medium-term-yes" name="{{ artist['name'] }}-top-track-medium-term-yes"><br><br>
-                <label for="top-track-medium-term-no">No:</label>
-                <input type="radio" id="top-track-medium-term-no" name="{{ artist['name'] }}-top-track-medium-term-no">
+                <label for="{{ artist['name'] }}-top-track-medium-term-yes">Yes:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-medium-term-yes" name="{{ artist['name'] }}-top-track-medium-term" value="yes">
+                <label for="{{ artist['name'] }}-top-track-medium-term-no">No:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-medium-term-no" name="{{ artist['name'] }}-top-track-medium-term" value="no">
             </fieldset>
             <fieldset>
                 <legend><b>Local artist like {{ artist["name"] }}?</b></legend>
-                <label for="top-track-medium-term-local-yes">Yes:</label>
-                <input type="radio" id="top-track-medium-term-local-yes" name="{{ artist['name'] }}-top-track-medium-term-local-yes"><br><br>
-                <label for="top-track-medium-term-local-no">No:</label>
-                <input type="radio" id="top-track-medium-term-local-no" name="{{ artist['name'] }}-top-track-medium-term-local-no">
+                <label for="{{ artist['name'] }}-top-track-local-medium-term-yes">Yes:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-local-medium-term-yes" name="{{ artist['name'] }}-top-track-local-medium-term" value="yes">
+                <label for="{{ artist['name'] }}-top-track-local-medium-term-no">No:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-local-medium-term-no" name="{{ artist['name'] }}-top-track-local-medium-term" value="no">
             </fieldset>
         </div>
   {% endfor %}
@@ -85,41 +85,41 @@
 
 {% block long_term %}
 
-  {% for artist in top_artists %}
+  {% for artist in top_artists_long_term %}
         <fieldset>
             <legend><b>{{ artist["name"] }}?</b></legend>
-            <label for="top-artist-long-term-yes">Yes:</label>
-            <input type="radio" id="top-artist-long-term-yes" name="{{ artist['name'] }}-top-artist-long-term-yes"><br><br>
-            <label for="top-artist-long-term-no">No:</label>
-            <input type="radio" id="top-artist-long-term-no" name="{{ artist['name'] }}-top-artist-long-term-no">
+            <label for="{{ artist['name'] }}-top-artist-long-term-yes">Yes:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-long-term-yes" name="{{ artist['name'] }}-top-artist-long-term" value="yes">
+            <label for="{{ artist['name'] }}-top-artist-long-term-no">No:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-long-term-no" name="{{ artist['name'] }}-top-artist-long-term" value="no">
         </fieldset>
         <fieldset>
             <legend><b>Local artist like {{ artist["name"] }}?</b></legend>
-            <label for="top-artist-long-term-local-yes">Yes:</label>
-            <input type="radio" id="top-artist-long-term-local-yes" name="{{ artist['name'] }}-top-artist-long-term-local-yes"><br><br>
-            <label for="top-artist-long-term-local-no">No:</label>
-            <input type="radio" id="top-artist-long-term-local-no" name="{{ artist['name'] }}-top-artist-long-term-local-no">
+            <label for="{{ artist['name'] }}-top-artist-local-long-term-yes">Yes:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-local-long-term-yes" name="{{ artist['name'] }}-top-artist-local-long-term" value="yes">
+            <label for="{{ artist['name'] }}-top-artist-local-long-term-no">No:</label>
+            <input type="radio" id="{{ artist['name'] }}-top-artist-local-long-term-no" name="{{ artist['name'] }}-top-artist-local-long-term" value="no">
         </fieldset>
         <br>
   {% endfor %}
 
 <br>
 
-  {% for artist in top_tracks %}
+  {% for artist in top_tracks_long_term %}
         <div>
             <fieldset>
                 <legend><b>{{ artist["name"] }}?</b></legend>
-                <label for="top-track-long-term-yes">Yes:</label>
-                <input type="radio" id="top-track-long-term-yes" name="{{ artist['name'] }}-top-track-long-term-yes"><br><br>
-                <label for="top-track-long-term-no">No:</label>
-                <input type="radio" id="top-track-long-term-no" name="{{ artist['name'] }}-top-track-long-term-no">
+                <label for="{{ artist['name'] }}-top-track-long-term-yes">Yes:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-long-term-yes" name="{{ artist['name'] }}-top-track-long-term" value="yes">
+                <label for="{{ artist['name'] }}-top-track-long-term-no">No:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-long-term-no" name="{{ artist['name'] }}-top-track-long-term" value="no">
             </fieldset>
             <fieldset>
                 <legend><b>Local artist like {{ artist["name"] }}?</b></legend>
-                <label for="top-track-long-term-local-yes">Yes:</label>
-                <input type="radio" id="top-track-long-term-local-yes" name="{{ artist['name'] }}-top-track-long-term-local-yes"><br><br>
-                <label for="top-track-long-term-local-no">No:</label>
-                <input type="radio" id="top-track-long-term-local-no" name="{{ artist['name'] }}-top-track-long-term-local-no">
+                <label for="{{ artist['name'] }}-top-track-local-long-term-yes">Yes:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-local-long-term-yes" name="{{ artist['name'] }}-top-track-local-long-term" value="yes">
+                <label for="{{ artist['name'] }}-top-track-local-long-term-no">No:</label>
+                <input type="radio" id="{{ artist['name'] }}-top-track-local-long-term-no" name="{{ artist['name'] }}-top-track-local-long-term" value="no">
             </fieldset>
         </div>
   {% endfor %}
