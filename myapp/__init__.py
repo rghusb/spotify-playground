@@ -44,7 +44,11 @@ db = SQLAlchemy(app)
 
 # Local project imports
 from myapp import constants, exceptions
-from myapp.spotify.main import add_spotify_user_data
+from myapp.spotify.main import (
+    add_spotify_user_data,
+    query_sorted_top_artists,
+    query_sorted_top_tracks,
+)
 from myapp.spotify.user_data import (
     get_current_user_spotify_oath,
     get_authorized_spotify,
@@ -80,7 +84,9 @@ def clear_session():
 
 @app.route("/thank_you/")
 def thank_you():
-    return "<h1>Thank you for taking the tastes survey!</h1>"
+    return render_template(
+        "error.html", error="Thank you for taking the tastes survey!"
+    )
 
 
 @app.route("/login/", methods=["POST", "GET"])
@@ -106,25 +112,30 @@ def login():
 
             spotify_username = get_current_user_username(user_sp)
             if not spotify_username:
-                raise RuntimeError("Unable to access current user's username.")
+                return render_template(
+                    "error.html", error=f"Unable to access current user's username."
+                )
 
             # Add user
             user = users.add_user(spotify_username)
             db.session.add(user)
 
-            add_spotify_user_data(
-                user_sp,
-                user,
-                top_tracks_flag=True,
-                top_artists_flag=True,
-                time_range="medium_term",
-            )
+            for time_range in constants.SPOTIFY_TERM_LENGTHS:
+                add_spotify_user_data(
+                    user_sp,
+                    user,
+                    top_tracks_flag=True,
+                    top_artists_flag=True,
+                    time_range=time_range,
+                )
+
+            # Save database session
             db.session.commit()
 
-            return redirect(url_for("show_user", username=spotify_username))
+            return redirect(url_for("user_survey", username=spotify_username))
 
         except exceptions.UserAlreadyExistsError as exc:
-            return redirect(url_for("show_user", username=str(exc)))
+            return redirect(url_for("user_survey", username=str(exc)))
 
         except Exception as exc:
             return render_template(
@@ -146,28 +157,33 @@ def login():
 @app.route("/show_user/<string:username>")
 def show_user(username=None):
     if not username:
-        return "Please add username to url"
+        return render_template("error.html", error=f"Please add username to url")
     else:
         user = users.query_username(username)
         if not user:
-            return f"No user exists given username: '{username}'"
+            return render_template(
+                "error.html", error=f"No user exists given username: '{username}'"
+            )
         else:
             try:
-                user_top_tracks = top_tracks.query_top_tracks(user.id, "medium_term")
-                str_top_tracks = []
-                for assoc in user_top_tracks.association:
-                    str_top_tracks.append(
-                        {"name": assoc.artists.name, "count": assoc.count}
-                    )
+                sorted_top_tracks_short_term = query_sorted_top_tracks(user.id, "short_term")
+                sorted_top_artists_short_term = query_sorted_top_artists(user.id, "short_term")
 
-                user_top_artists = top_artists.query_top_artists(user.id, "medium_term")
-                str_top_artists = [artist.name for artist in user_top_artists.artists]
+                sorted_top_tracks_medium_term = query_sorted_top_tracks(user.id, "medium_term")
+                sorted_top_artists_medium_term = query_sorted_top_artists(user.id, "medium_term")
+
+                sorted_top_tracks_long_term = query_sorted_top_tracks(user.id, "long_term")
+                sorted_top_artists_long_term = query_sorted_top_artists(user.id, "long_term")
 
                 return render_template(
                     "display_user.html",
                     username=username,
-                    top_tracks=str_top_tracks,
-                    top_artists=str_top_artists,
+                    top_tracks_short_term=sorted_top_tracks_short_term,
+                    top_artists_short_term=sorted_top_artists_short_term,
+                    top_tracks_medium_term=sorted_top_tracks_medium_term,
+                    top_artists_medium_term=sorted_top_artists_medium_term,
+                    top_tracks_long_term=sorted_top_tracks_long_term,
+                    top_artists_long_term=sorted_top_artists_long_term,
                 )
             except Exception as exc:
                 return f"{exc.__class__.__name__}: {str(exc)}"
@@ -177,45 +193,43 @@ def show_user(username=None):
 @app.route("/user_survey/<string:username>")
 def user_survey(username=None):
     if not username:
-        return "Please add username to url"
+        return render_template("error.html", error=f"Please add username to url")
     else:
         user = users.query_username(username)
         if not user:
-            return f"No user exists given username: '{username}'"
+            return render_template(
+                "error.html", error=f"No user exists given username: '{username}'"
+            )
         else:
             try:
-                user_top_tracks = top_tracks.query_top_tracks(user.id, "medium_term")
-                top_tracks_lis = []
-                for assoc in user_top_tracks.association:
-                    top_tracks_lis.append(
-                        {"name": assoc.artists.name, "count": assoc.count}
-                    )
-                sorted_top_tracks = sorted(
-                    top_tracks_lis, key=lambda i: i["count"], reverse=True
-                )
-                sorted_str_top_tracks = [artist["name"] for artist in sorted_top_tracks]
-
-                user_top_artists = top_artists.query_top_artists(user.id, "medium_term")
-                str_top_artists = [artist.name for artist in user_top_artists.artists]
+                sorted_top_tracks = query_sorted_top_tracks(user.id, "medium_term")
+                sorted_top_artists = query_sorted_top_artists(user.id, "medium_term")
 
                 return render_template(
                     "survey_question.html",
                     username=username,
-                    top_artists_questions=str_top_artists[:1],
-                    top_tracks_questions=sorted_str_top_tracks[:1],
+                    top_artists=sorted_top_artists[:5],
+                    top_tracks=sorted_top_tracks[:5],
                 )
             except Exception as exc:
-                return f"{exc.__class__.__name__}: {str(exc)}"
+                return render_template(
+                    "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+                )
 
 
 @app.route("/save_survey/<string:username>", methods=["POST", "GET"])
 def save_survey(username: str):
     if request.method == "POST":
         print(f"Saving survey for {username}...")
-        _save_survey_form(request.form, username)
+        try:
+            _save_survey_form(request.form, username)
+        except Exception as exc:
+            return render_template(
+                "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+            )
         return redirect(url_for("thank_you"))
     else:
-        return "<h1>Can't save survey as GET request</h1>"
+        return render_template("error.html", error="Can't save survey as GET request.")
 
 
 def _save_survey_form(form: dict, username: str) -> None:
@@ -225,13 +239,19 @@ def _save_survey_form(form: dict, username: str) -> None:
         lst = txt.split("-")
         return lst[0]
 
-    def _get_bool(txt):
+    def _get_bool(txt: str) -> str:
         if re.findall("-yes$", txt):
             return "yes"
         elif re.findall("-no$", txt):
             return "no"
         else:
-            raise RuntimeError("Error with survey form tags.")
+            raise RuntimeError("Error getting answer from survey form tags.")
+
+    def _get_time_range(txt: str) -> str:
+        for term_length in constants.SPOTIFY_TERM_LENGTHS:
+            if re.findall(term_length, txt):
+                return term_length
+        raise RuntimeError("Error getting time range from survey form tags.")
 
     if not isinstance(form, dict):
         print("Error - form isn't a dictionary.")
@@ -241,22 +261,27 @@ def _save_survey_form(form: dict, username: str) -> None:
         response_type = None
         artist = None
         response = None
-        if re.search("top-artist", key):
-            response_type = "top-artist"
-            artist = _get_artist(key)
-            response = _get_bool(key)
-        elif re.search("top-artist-local", key):
+        time_range = None
+        if re.search("top-artist-local", key):
             response_type = "top-artist-local"
             artist = _get_artist(key)
             response = _get_bool(key)
-        elif re.search("top-track", key):
-            response_type = "top-track"
+            time_range = _get_time_range(key)
+        elif re.search("top-artist", key):
+            response_type = "top-artist"
             artist = _get_artist(key)
             response = _get_bool(key)
+            time_range = _get_time_range(key)
         elif re.search("top-track-local", key):
             response_type = "top-track-local"
             artist = _get_artist(key)
             response = _get_bool(key)
+            time_range = _get_time_range(key)
+        elif re.search("top-track", key):
+            response_type = "top-track"
+            artist = _get_artist(key)
+            response = _get_bool(key)
+            time_range = _get_time_range(key)
         else:
             raise RuntimeError("Error with survey form tags.")
 
@@ -271,7 +296,7 @@ def _save_survey_form(form: dict, username: str) -> None:
                 artist,
                 response_type,
                 response,
-                "medium-term",
+                time_range,
             )
             db.session.add(new_survey)
 

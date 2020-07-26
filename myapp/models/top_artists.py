@@ -6,12 +6,26 @@ from myapp.models.artists import Artists
 from myapp.models.users import Users
 
 
-top_artists_artists_association = db.Table(
-    "top_artists_artists",
-    db.metadata,
-    db.Column("top_artists_id", db.Integer, db.ForeignKey("top_artists.id")),
-    db.Column("artists_id", db.Integer, db.ForeignKey("artists.id")),
-)
+# top_artists_artists_association = db.Table(
+#     "top_artists_artists",
+#     db.metadata,
+#     db.Column("TopArtistsId", db.Integer, db.ForeignKey("top_artists.id")),
+#     db.Column("ArtistsId", db.Integer, db.ForeignKey("artists.id")),
+#     db.Column("Rank", db.Integer, default=-1),
+# )
+
+
+class TopArtistsArtistsAssociation(db.Model):
+    """"""
+
+    __tablename__ = "top_artists_artists_association"
+    top_artists_id = db.Column(
+        db.Integer, db.ForeignKey("top_artists.id"), primary_key=True
+    )
+    artists_id = db.Column(db.Integer, db.ForeignKey("artists.id"), primary_key=True)
+    top_artists = db.relationship("TopArtists")
+    artists = db.relationship("Artists")
+    rank = db.Column(db.Integer, default=-1)
 
 
 class TopArtists(db.Model):
@@ -23,7 +37,7 @@ class TopArtists(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     time_range = db.Column("TimeRange", db.String(64))
 
-    artists = db.relationship(Artists, secondary=top_artists_artists_association)
+    association = db.relationship("TopArtistsArtistsAssociation")
 
 
 def add_top_artists(user: Users, time_range: str) -> TopArtists:

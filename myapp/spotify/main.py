@@ -1,5 +1,6 @@
 """"""
 import spotipy
+from typing import List, Dict
 
 # Local project imports
 from myapp.spotify import user_data
@@ -16,6 +17,42 @@ from myapp.models import (
 )
 
 
+def query_sorted_top_artists(
+    user_id: str, time_range: str = "medium_term"
+) -> List[Dict[str, str]]:
+    """"""
+    user_top_artists = top_artists.query_top_artists(user_id, time_range)
+    top_artists_lis = []
+    for assoc in user_top_artists.association:
+        top_artists_lis.append(
+            {"name": assoc.artists.name, "rank": assoc.rank,}
+        )
+    if top_artists_lis:
+        return sorted(top_artists_lis, key=lambda i: i["rank"])
+    else:
+        return []
+
+
+def query_sorted_top_tracks(
+    user_id: str, time_range: str = "medium_term"
+) -> List[Dict[str, str]]:
+    """"""
+    user_top_tracks = top_tracks.query_top_tracks(user_id, time_range)
+    top_tracks_lis = []
+    for assoc in user_top_tracks.association:
+        top_tracks_lis.append(
+            {
+                "name": assoc.artists.name,
+                "count": assoc.count,
+                "rank": assoc.rank,
+            }
+        )
+    if top_tracks_lis:
+        return sorted(top_tracks_lis, key=lambda i: i["rank"])
+    else:
+        return []
+
+
 def add_spotify_user_data(
     user_spotify: spotipy.Spotify,
     user: users.Users,
@@ -26,7 +63,7 @@ def add_spotify_user_data(
     """"""
 
     # Pull user's data
-    number_of_tracks = 5
+    number_of_tracks = 20
 
     if top_tracks_flag:
         top_tracks_pull = user_data.get_current_user_top_tracks(
@@ -49,7 +86,7 @@ def _add_top_tracks(user: users.Users, data_pull: DataPull, time_range: str) -> 
     """"""
     top_tracks_table = top_tracks.add_top_tracks(user, time_range)
 
-    for artist in data_pull.artists:
+    for i, artist in enumerate(data_pull.artists):
         art_ = artists.add_artist(artist.name, artist.uri)
 
         association_query = top_tracks.query_top_tracks_artists_association(
@@ -62,7 +99,7 @@ def _add_top_tracks(user: users.Users, data_pull: DataPull, time_range: str) -> 
             db.session.add(existing_association)
         else:
             new_association = top_tracks.TopTracksArtistsAssociation(
-                top_tracks=top_tracks_table, artists=art_
+                top_tracks=top_tracks_table, artists=art_, rank=i + 1
             )
             top_tracks_table.association.append(new_association)
             db.session.add(new_association)
@@ -74,8 +111,12 @@ def _add_top_artists(user: users.Users, data_pull: DataPull, time_range: str) ->
     """"""
     top_artists_table = top_artists.add_top_artists(user, time_range)
 
-    for artist in data_pull.artists:
+    for i, artist in enumerate(data_pull.artists):
         art_ = artists.add_artist(artist.name, artist.uri)
-        top_artists_table.artists.append(art_)
+        new_association = top_artists.TopArtistsArtistsAssociation(
+            top_artists=top_artists_table, artists=art_, rank=i + 1
+        )
+        top_artists_table.association.append(new_association)
+        db.session.add(new_association)
 
     db.session.add(top_artists_table)

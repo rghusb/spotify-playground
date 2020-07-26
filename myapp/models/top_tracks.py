@@ -17,6 +17,7 @@ class TopTracksArtistsAssociation(db.Model):
     top_tracks = db.relationship("TopTracks")
     artists = db.relationship("Artists")
     count = db.Column(db.Integer, default=1)
+    rank = db.Column(db.Integer, default=-1)
 
 
 def query_top_tracks_artists_association(

@@ -3,7 +3,13 @@
     <b>User: {{ username }}</b>
     <h1>Would you attend the following live events?</h1>
     <form action="/save_survey/{{ username }}" method="POST" id="survey">
-      <div id="content">{% block survey_content %}{% endblock %}</div>
+      <div id="content">
+          <div>{% block short_term %}{% endblock %}</div>
+          <br>
+          <div>{% block medium_term %}{% endblock %}</div>
+          <br>
+          <div>{% block long_term %}{% endblock %}</div>
+      </div>
       <br>
       <input type="submit" value="Submit Survey" />
     </form>

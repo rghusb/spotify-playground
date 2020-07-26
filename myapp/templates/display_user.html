@@ -5,18 +5,54 @@
 {% block content %}
   <h1>Username: {{ username }}</h1>
 
-  <h3>Top Tracks</h3>
-  {% for artist in top_tracks %}
-    <p>{{ artist["name"] }} - {{ artist["count"] }}</p>
+  <h3>Top Tracks Short Term</h3>
+  {% for artist in top_tracks_short_term %}
+    <p>{{ artist["name"] }}({{ artist["count"] }}) - Rank: {{ artist["rank"] }}</p>
   {% else %}
     <p>Zero top tracks</p>
   {% endfor %}
 
   <br>
 
-  <h3>Top Artists</h3>
-  {% for artist in top_artists %}
-    <p>{{ artist }}</p>
+  <h3>Top Artists Short Term</h3>
+  {% for artist in top_artists_short_term %}
+    <p>{{ artist["name"] }} - Rank: {{ artist["rank"] }}</p>
+  {% else %}
+    <p>Zero top artists</p>
+  {% endfor %}
+
+  <br>
+
+  <h3>Top Tracks Medium Term</h3>
+  {% for artist in top_tracks_medium_term %}
+    <p>{{ artist["name"] }}({{ artist["count"] }}) - Rank: {{ artist["rank"] }}</p>
+  {% else %}
+    <p>Zero top tracks</p>
+  {% endfor %}
+
+  <br>
+
+  <h3>Top Artists Medium Term</h3>
+  {% for artist in top_artists_medium_term %}
+    <p>{{ artist["name"] }} - Rank: {{ artist["rank"] }}</p>
+  {% else %}
+    <p>Zero top artists</p>
+  {% endfor %}
+
+  <br>
+
+  <h3>Top Tracks Long Term</h3>
+  {% for artist in top_tracks_long_term %}
+    <p>{{ artist["name"] }}({{ artist["count"] }}) - Rank: {{ artist["rank"] }}</p>
+  {% else %}
+    <p>Zero top tracks</p>
+  {% endfor %}
+
+  <br>
+
+  <h3>Top Artists Long Term</h3>
+  {% for artist in top_artists_long_term %}
+    <p>{{ artist["name"] }} - Rank: {{ artist["rank"] }}</p>
   {% else %}
     <p>Zero top artists</p>
   {% endfor %}

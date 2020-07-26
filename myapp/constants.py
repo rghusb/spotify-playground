@@ -11,3 +11,5 @@ READ_EMAIL_SCOPE = "user-read-email"
 LIBRARY_READ_SCOPE = "user-library-read"
 TOP_READ_SCOPE = "user-top-read"
 FOLLOW_READ_SCOPE = "user-follow-read"
+
+SPOTIFY_TERM_LENGTHS = ["short_term", "medium_term", "long_term"]
