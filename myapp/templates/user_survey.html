@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-    <b>User: {{ username }}</b>
+    <p>For Spotify User: {{ username }}</p>
     <h1>Would you attend the following live events?</h1>
+    <br>
+    <br>
     <form action="/save_survey/{{ username }}" method="POST" id="survey">
       <div id="content">
           <div>{% block short_term %}{% endblock %}</div>
@@ -11,6 +13,6 @@
           <div>{% block long_term %}{% endblock %}</div>
       </div>
       <br>
-      <input type="submit" value="Submit Survey" />
+      <input type="submit" class="btn-primary" value="Submit Survey" />
     </form>
 {% endblock %}
