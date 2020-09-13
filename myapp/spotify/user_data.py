@@ -93,7 +93,10 @@ def get_current_user_top_artists(
     for artist in top_artists_data["items"]:
         artists.append(Artist(uri=artist["uri"], name=artist["name"]))
 
-    return DataPull(artists=artists, tracks=[], type=TOP_ARTISTS_PULL_TYPE)
+    if artists:
+        return DataPull(artists=artists, tracks=[], type=TOP_ARTISTS_PULL_TYPE)
+
+    return None
 
 
 def get_current_user_top_tracks(
@@ -122,4 +125,7 @@ def get_current_user_top_tracks(
         for artist in track["artists"]:
             artists.append(Artist(uri=artist["uri"], name=artist["name"]))
 
-    return DataPull(artists=artists, tracks=tracks, type=TOP_TRACKS_PULL_TYPE)
+    if artists and tracks:
+        return DataPull(artists=artists, tracks=tracks, type=TOP_TRACKS_PULL_TYPE)
+
+    return None

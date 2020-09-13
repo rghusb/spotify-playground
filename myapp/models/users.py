@@ -45,6 +45,7 @@ class Users(db.Model):
 def add_user(username: str) -> Users:
     """"""
     if query_username(username) is not None:
+        # return query_username(username)  # testing
         raise exceptions.UserAlreadyExistsError(f"{username}")
 
     return Users(username=username)

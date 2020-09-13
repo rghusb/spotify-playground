@@ -3,6 +3,7 @@ import spotipy
 from typing import List, Dict
 
 # Local project imports
+from myapp import exceptions
 from myapp.spotify import user_data
 from myapp.spotify.user_data import DataPull
 
@@ -66,7 +67,7 @@ def add_spotify_user_data(
             user_spotify, limit=number_of_tracks, time_range=time_range
         )
         if not top_tracks_pull:
-            raise RuntimeError("No top tracks data to add.")
+            raise exceptions.NoUserData
         _add_top_tracks(user, top_tracks_pull, time_range)
 
     if top_artists_flag:
@@ -74,7 +75,7 @@ def add_spotify_user_data(
             user_spotify, number_of_tracks, 0, time_range
         )
         if not top_artists_pull:
-            raise RuntimeError("No top artists data to add.")
+            raise exceptions.NoUserData
         _add_top_artists(user, top_artists_pull, time_range)
 
 

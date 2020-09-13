@@ -2,6 +2,7 @@
 # Utils
 import os
 import re
+import logging
 from typing import Dict, Tuple, List
 
 # from markupsafe import escape
@@ -19,6 +20,15 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 import time
+
+FORMAT = "%(asctime)s %(levelname)s: %(message)s"
+logging.basicConfig(
+    filename="myapp.log",
+    format="%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
+    datefmt="%Y-%m-%d:%H:%M:%S",
+    level=logging.DEBUG,
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = "some-secret-key"
@@ -40,10 +50,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE_DATABASE_LOCATION}"
 #     "SQLALCHEMY_DATABASE_URI"
 # ] = f"mysql+pymysql://rghusb:asdf1234@rghusb.mysql.pythonanywhere-services.com/rghusb$spotifyDatabase"
 
+app.config["SQLALCHEMY_POOL_RECYCLE"] = 90
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+
 db = SQLAlchemy(app)
 
 # Local project imports
-from myapp import constants, exceptions
+from myapp import constants, exceptions, utils
 from myapp.spotify.main import (
     add_spotify_user_data,
     query_sorted_top_artists,
@@ -68,22 +81,26 @@ from myapp.models import (
 @app.route("/")
 @app.route("/home")
 def index():
+    logger.debug("INDEX")
     return render_template("home.html")
 
 
 @app.route("/redirect_home/", methods=["POST", "GET"])
 def redirect_home():
+    logger.debug("REDIRECT HOME")
     return redirect(url_for("index"))
 
 
 @app.route("/clear_session")
 def clear_session():
+    logger.debug("SESSION CLEAR")
     session.clear()
     return "<h1>Session cleared!</h1>"
 
 
 @app.route("/thank_you/")
 def thank_you():
+    logger.debug("THANK YOU")
     return render_template(
         "error.html", error="Thank you for taking the tastes survey!"
     )
@@ -91,18 +108,21 @@ def thank_you():
 
 @app.route("/login/", methods=["POST", "GET"])
 def login():
+    logger.debug("LOGIN")
     if request.method == "GET":
         try:
             session["token_info"], authorized = _get_token(session)
             session.modified = True
 
             if not authorized:
+                logger.error("Error - Not Authorized for SpotiPY data pull.")
                 return render_template(
                     "error.html", error="Error - Not Authorized for SpotiPY data pull."
                 )
 
             token = session.get("token_info").get("access_token")
             if not token:
+                logger.error("Error - No auth token available for SpotiPY data pull.")
                 return render_template(
                     "error.html",
                     error="Error - No auth token available for SpotiPY data pull.",
@@ -112,6 +132,7 @@ def login():
 
             spotify_username = get_current_user_username(user_sp)
             if not spotify_username:
+                logger.error(f"Couldn't get current user Spotify username")
                 return render_template(
                     "error.html", error=f"Unable to access current user's username."
                 )
@@ -135,20 +156,38 @@ def login():
             return redirect(url_for("user_survey", username=spotify_username))
 
         except exceptions.UserAlreadyExistsError as exc:
+            logger.warning("User already exists, redirecting to survey")
             return redirect(url_for("user_survey", username=str(exc)))
 
+        except exceptions.NoUserData:
+            session.clear()
+            logger.error("No user spotify data")
+            return render_template(
+                "error.html",
+                error=f"No data associated with entered Spotify account. "
+                f"Please log out with the following link and sign in with an active account. "
+                f"(https://www.spotify.com/logout/)",
+            )
+
         except Exception as exc:
+            logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
             return render_template(
                 "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
             )
 
     elif request.method == "POST":
-        # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens
-        #  if you reuse a SpotifyOAuth object.
-        sp_oauth = get_current_user_spotify_oath()
-        auth_url = sp_oauth.get_authorize_url()
-        print(auth_url)
-        return redirect(auth_url)
+        try:
+            # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens
+            #  if you reuse a SpotifyOAuth object.
+            sp_oauth = get_current_user_spotify_oath()
+            auth_url = sp_oauth.get_authorize_url()
+            print(auth_url)
+            return redirect(auth_url)
+        except Exception as exc:
+            logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
+            return render_template(
+                "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+            )
 
     return redirect(url_for("index"))
 
@@ -156,16 +195,19 @@ def login():
 @app.route("/show_user/")
 @app.route("/show_user/<string:username>")
 def show_user(username=None):
-    if not username:
-        return render_template("error.html", error=f"Please add username to url")
-    else:
-        user = users.query_username(username)
-        if not user:
-            return render_template(
-                "error.html", error=f"No user exists given username: '{username}'"
-            )
+    logger.debug("SHOW USER")
+    try:
+        if not username:
+            logger.warning("No username")
+            return render_template("error.html", error=f"Please add username to url")
         else:
-            try:
+            user = users.query_username(username)
+            if not user:
+                logger.error("No user")
+                return render_template(
+                    "error.html", error=f"No user exists given username: '{username}'"
+                )
+            else:
                 sorted_top_tracks_short_term = query_sorted_top_tracks(
                     user.id, "short_term"
                 )
@@ -197,25 +239,30 @@ def show_user(username=None):
                     top_tracks_long_term=sorted_top_tracks_long_term,
                     top_artists_long_term=sorted_top_artists_long_term,
                 )
-            except Exception as exc:
-                return f"{exc.__class__.__name__}: {str(exc)}"
+
+    except Exception as exc:
+        logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
+        return render_template(
+            "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+        )
 
 
 @app.route("/user_survey/")
 @app.route("/user_survey/<string:username>")
 def user_survey(username=None):
-    if not username:
-        return render_template("error.html", error=f"Please add username to url")
-    else:
-        user = users.query_username(username)
-        if not user:
-            return render_template(
-                "error.html", error=f"No user exists given username: '{username}'"
-            )
+    logger.debug(f"USER SURVEY for username: '{username}'")
+    try:
+        if not username:
+            logger.warning("No username")
+            return render_template("error.html", error=f"Please add username to url")
         else:
-            try:
-                qs = 5
-
+            user = users.query_username(username)
+            if not user:
+                logger.error("No user")
+                return render_template(
+                    "error.html", error=f"No user exists given username: '{username}'"
+                )
+            else:
                 sorted_top_tracks_short_term = query_sorted_top_tracks(
                     user.id, "short_term"
                 )
@@ -238,21 +285,22 @@ def user_survey(username=None):
                 )
 
                 (
-                    sorted_top_tracks_short_term,
                     sorted_top_artists_short_term,
-                    sorted_top_tracks_medium_term,
-                    sorted_top_artists_medium_term,
-                    sorted_top_tracks_long_term,
-                    sorted_top_artists_long_term,
-                ) = _remove_duplicate_survey_questions(
                     sorted_top_tracks_short_term,
-                    sorted_top_artists_short_term,
-                    sorted_top_tracks_medium_term,
                     sorted_top_artists_medium_term,
-                    sorted_top_tracks_long_term,
+                    sorted_top_tracks_medium_term,
                     sorted_top_artists_long_term,
+                    sorted_top_tracks_long_term,
+                ) = utils.remove_duplicate_survey_questions(
+                    sorted_top_artists_short_term,
+                    sorted_top_tracks_short_term,
+                    sorted_top_artists_medium_term,
+                    sorted_top_tracks_medium_term,
+                    sorted_top_artists_long_term,
+                    sorted_top_tracks_long_term,
                 )
 
+                qs = 5
                 return render_template(
                     "survey_question.html",
                     username=username,
@@ -263,94 +311,32 @@ def user_survey(username=None):
                     top_tracks_long_term=sorted_top_tracks_long_term[:qs],
                     top_artists_long_term=sorted_top_artists_long_term[:qs],
                 )
-            except Exception as exc:
-                return render_template(
-                    "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
-                )
+    except Exception as exc:
+        logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
+        return render_template(
+            "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+        )
 
 
-def _remove_duplicate_survey_questions(
-    sorted_top_tracks_short_term,
-    sorted_top_artists_short_term,
-    sorted_top_tracks_medium_term,
-    sorted_top_artists_medium_term,
-    sorted_top_tracks_long_term,
-    sorted_top_artists_long_term,
-) -> Tuple[List, List, List, List, List, List]:
-    """"""
-    seen_artists = []
-
-    # Short term top artists
-    for i, item in enumerate(sorted_top_artists_short_term):
-        artist_name = item["name"]
-        if artist_name in seen_artists:
-            sorted_top_artists_short_term.pop(i)
-        else:
-            seen_artists.append(artist_name)
-
-    # Short term top tracks
-    for i, item in enumerate(sorted_top_tracks_short_term):
-        artist_name = item["name"]
-        if artist_name in seen_artists:
-            sorted_top_tracks_short_term.pop(i)
-        else:
-            seen_artists.append(artist_name)
-
-    # Medium term top artists
-    for i, item in enumerate(sorted_top_artists_medium_term):
-        artist_name = item["name"]
-        if artist_name in seen_artists:
-            sorted_top_artists_medium_term.pop(i)
-        else:
-            seen_artists.append(artist_name)
-
-    # Medium term top tracks
-    for i, item in enumerate(sorted_top_tracks_medium_term):
-        artist_name = item["name"]
-        if artist_name in seen_artists:
-            sorted_top_tracks_medium_term.pop(i)
-        else:
-            seen_artists.append(artist_name)
-
-    # Long term top artists
-    for i, item in enumerate(sorted_top_artists_long_term):
-        artist_name = item["name"]
-        if artist_name in seen_artists:
-            sorted_top_artists_long_term.pop(i)
-        else:
-            seen_artists.append(artist_name)
-
-    # Long term top tracks
-    for i, item in enumerate(sorted_top_tracks_long_term):
-        artist_name = item["name"]
-        if artist_name in seen_artists:
-            sorted_top_tracks_long_term.pop(i)
-        else:
-            seen_artists.append(artist_name)
-
-    return (
-        sorted_top_tracks_short_term,
-        sorted_top_artists_short_term,
-        sorted_top_tracks_medium_term,
-        sorted_top_artists_medium_term,
-        sorted_top_tracks_long_term,
-        sorted_top_artists_long_term,
-    )
-
-
-@app.route("/save_survey/<string:username>", methods=["POST", "GET"])
+@app.route("/save_survey/<string:username>", methods=["POST"])
 def save_survey(username: str):
-    if request.method == "POST":
-        print(f"Saving survey for {username}...")
-        try:
+    logger.debug("SAVE SURVEY")
+    try:
+        if request.method == "POST":
+            print(f"Saving survey for {username}...")
             _save_survey_form(request.form, username)
-        except Exception as exc:
+            logger.debug("SURVEY SAVE COMPLETE")
+            return redirect(url_for("thank_you"))
+        else:
             return render_template(
-                "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+                "error.html", error="Can't save survey as GET request."
             )
-        return redirect(url_for("thank_you"))
-    else:
-        return render_template("error.html", error="Can't save survey as GET request.")
+
+    except Exception as exc:
+        logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
+        return render_template(
+            "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+        )
 
 
 def _save_survey_form(form: dict, username: str) -> None:
@@ -430,17 +416,25 @@ def _save_survey_form(form: dict, username: str) -> None:
 # Spotify returns access and refresh tokens
 @app.route("/callback")
 def callback():
-    # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens
-    #  if you reuse a SpotifyOAuth object.
-    sp_oauth = get_current_user_spotify_oath()
-    session.clear()
-    code = request.args.get("code")
-    token_info = sp_oauth.get_access_token(code, check_cache=False)
+    logger.debug("CALLBACK")
+    try:
+        # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens
+        #  if you reuse a SpotifyOAuth object.
+        sp_oauth = get_current_user_spotify_oath()
+        session.clear()
+        code = request.args.get("code")
+        token_info = sp_oauth.get_access_token(code, check_cache=False)
 
-    # Saving the access token along with all other token related info
-    session["token_info"] = token_info
+        # Saving the access token along with all other token related info
+        session["token_info"] = token_info
 
-    return redirect(url_for("login"))
+        return redirect(url_for("login"))
+
+    except Exception as exc:
+        logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
+        return render_template(
+            "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
+        )
 
 
 # Checks to see if token is valid and gets a new token if not
