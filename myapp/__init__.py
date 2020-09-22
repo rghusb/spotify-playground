@@ -75,32 +75,33 @@ from myapp.models import (
     top_artists,
     top_tracks,
     survey,
+    user_info,
 )
 
 
 @app.route("/")
 @app.route("/home")
 def index():
-    logger.debug("INDEX")
+    logger.info("INDEX")
     return render_template("home.html")
 
 
 @app.route("/redirect_home/", methods=["POST", "GET"])
 def redirect_home():
-    logger.debug("REDIRECT HOME")
+    logger.info("REDIRECT HOME")
     return redirect(url_for("index"))
 
 
 @app.route("/clear_session")
 def clear_session():
-    logger.debug("SESSION CLEAR")
+    logger.info("SESSION CLEAR")
     session.clear()
     return "<h1>Session cleared!</h1>"
 
 
 @app.route("/thank_you/")
 def thank_you():
-    logger.debug("THANK YOU")
+    logger.info("THANK YOU")
     return render_template(
         "error.html", error="Thank you for taking the tastes survey!"
     )
@@ -108,7 +109,7 @@ def thank_you():
 
 @app.route("/login/", methods=["POST", "GET"])
 def login():
-    logger.debug("LOGIN")
+    logger.info("LOGIN")
     if request.method == "GET":
         try:
             session["token_info"], authorized = _get_token(session)
@@ -195,7 +196,7 @@ def login():
 @app.route("/show_user/")
 @app.route("/show_user/<string:username>")
 def show_user(username=None):
-    logger.debug("SHOW USER")
+    logger.info("SHOW USER")
     try:
         if not username:
             logger.warning("No username")
@@ -250,7 +251,7 @@ def show_user(username=None):
 @app.route("/user_survey/")
 @app.route("/user_survey/<string:username>")
 def user_survey(username=None):
-    logger.debug(f"USER SURVEY for username: '{username}'")
+    logger.info(f"USER SURVEY for username: '{username}'")
     try:
         if not username:
             logger.warning("No username")
@@ -320,12 +321,12 @@ def user_survey(username=None):
 
 @app.route("/save_survey/<string:username>", methods=["POST"])
 def save_survey(username: str):
-    logger.debug("SAVE SURVEY")
+    logger.info("SAVE SURVEY")
     try:
         if request.method == "POST":
             print(f"Saving survey for {username}...")
             _save_survey_form(request.form, username)
-            logger.debug("SURVEY SAVE COMPLETE")
+            logger.info("SURVEY SAVE COMPLETE")
             return redirect(url_for("thank_you"))
         else:
             return render_template(
@@ -364,16 +365,12 @@ def _save_survey_form(form: dict, username: str) -> None:
         else:
             raise RuntimeError("Error getting time range from survey form tags.")
 
-    if not isinstance(form, dict):
-        print("Error - form isn't a dictionary.")
-        return None
-
-    for key, value in request.form.items():
-        # print(f"Key: {key} - Value: {value}")
+    def _regular_survey(key: str, value: str, user: users.Users):
         response_type = None
         artist = None
         response = None
         time_range = None
+
         if re.search("top-artist-local", key):
             response_type = "top-artist-local"
             artist = _get_artist(key)
@@ -394,19 +391,76 @@ def _save_survey_form(form: dict, username: str) -> None:
             artist = _get_artist(key)
             response = _get_bool(value)
             time_range = _get_time_range(key)
-        else:
-            raise RuntimeError("Error with survey form tags.")
 
-        current_user = users.query_username(username)
-        print(
-            f"User: {current_user} - Artist: {artist} - Response: {response} - Response Type: {response_type}"
+        logger.info(
+            f"User: {user} - Artist: {artist} - Response: {response} - Response Type: {response_type}"
         )
-
-        if current_user and artist and response_type and response:
+        if user and artist and response_type and response:
             new_survey = survey.add_survey(
-                current_user.get_user_id(), artist, response_type, response, time_range,
+                user.get_user_id(), artist, response_type, response, time_range,
             )
             db.session.add(new_survey)
+
+    def _user_info_survey(key: str, value: str, user: users.Users):
+        question_type = None
+        answer = None
+
+        if "frequency" in key:
+            question_type = "frequency"
+            answer = value
+        elif "music-represented" in key:
+            question_type = "music-represented"
+            answer = value
+        elif "music-tastes-" in key:
+            question_type = "music-tastes"
+            answer = value
+        elif "age" in key:
+            question_type = "age"
+            answer = value
+        elif "location-name" in key:
+            question_type = "location"
+            answer = value
+        elif "email-name" in key:
+            question_type = "email"
+            answer = value
+
+        logger.info(f"User: {user} - Question Type: {question_type} - Answer: {answer}")
+        if user and question_type and answer:
+            new_user_info = user_info.add_user_info(
+                user.get_user_id(), question_type, answer
+            )
+            db.session.add(new_user_info)
+
+    # Start function here #
+
+    if not isinstance(form, dict):
+        raise RuntimeError("Error - form isn't a dictionary in save survey.")
+
+    current_user = users.query_username(username)
+    if not current_user:
+        raise RuntimeError(
+            f"Unable to find user: '{username}' in database. Please try again from the home screen."
+        )
+
+    for input_key, input_value in request.form.items():
+        if (
+            "top-artist-local" in input_key
+            or "top-artist" in input_key
+            or "top-track-local" in input_key
+            or "top-track" in input_key
+        ):
+            _regular_survey(input_key, input_value, current_user)
+        elif (
+            "frequency" in input_key
+            or "music-represented" in input_key
+            or "music-tastes-" in input_key
+            or "age" in input_key
+            or "location-name" in input_key
+            or "email-name" in input_key
+        ):
+            _user_info_survey(input_key, input_value, current_user)
+        else:
+            raise RuntimeError("Error - Survey question type not located.")
 
     db.session.commit()
 
@@ -416,7 +470,7 @@ def _save_survey_form(form: dict, username: str) -> None:
 # Spotify returns access and refresh tokens
 @app.route("/callback")
 def callback():
-    logger.debug("CALLBACK")
+    logger.info("CALLBACK")
     try:
         # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens
         #  if you reuse a SpotifyOAuth object.

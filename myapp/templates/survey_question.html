@@ -199,3 +199,190 @@
         <br>
   {% endfor %}
 {% endblock %}
+
+{% block user_info %}
+<div class="card bg-light">
+    <div class="card-body">
+        <fieldset>
+            <legend>On average, how often do you attend live music events?</legend>
+            <div>
+<!--              <label for="frequency-id">On average, how often do you attend live music events?</label>-->
+              <p id="frequency-id">
+                <input type="radio" name="frequency" value="0"> 0 times a year<br>
+                <input type="radio" name="frequency" value="1-3"> 1-3 times a year<br>
+                <input type="radio" name="frequency" value="4-6"> 4-6 times a year<br>
+                <input type="radio" name="frequency" value="7-12"> 7-12 times a year<br>
+                <input type="radio" name="frequency" value="12-24"> 1 or 2 times a month<br>
+                <input type="radio" name="frequency" value="25+"> 3+ times a month
+              </p>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<br>
+
+<div class="card bg-light">
+    <div class="card-body">
+        <fieldset>
+            <legend>Do you feel your taste in music represented in your city?</legend>
+                <div>
+<!--                  <label for="music-represented-city">Do you feel your taste in music represented in your city?</label>-->
+                  <p id="music-represented-city">
+                    <input type="radio" name="music-represented" value="yes"> Yes<br>
+                    <input type="radio" name="music-represented" value="no"> No
+                  </p>
+                </div>
+        </fieldset>
+    </div>
+</div>
+
+<br>
+
+<div class="card bg-light">
+    <div class="card-body">
+        <fieldset>
+            <legend>Select some of your favorite genres to see live.</legend>
+                <div>
+<!--                  <label for="music-tastes-id">Check some of your favorite genres to see live.</label>-->
+                  <p id="music-tastes-id">
+                    <input type="checkbox" name="music-tastes-alternative" value="alternative"> Alternative<br>
+                    <input type="checkbox" name="music-tastes-classical" value="classical"> Classical<br>
+                    <input type="checkbox" name="music-tastes-blues" value="blues"> Blues<br>
+                    <input type="checkbox" name="music-tastes-country" value="country"> Country<br>
+                    <input type="checkbox" name="music-tastes-dance" value="dance"> Dance<br>
+                    <input type="checkbox" name="music-tastes-electronic" value="electronic"> Electronic<br>
+                    <input type="checkbox" name="music-tastes-hip-hop/rap" value="hip-hop/rap"> Hip-Hop/Rap<br>
+                    <input type="checkbox" name="music-tastes-indie-pop" value="indie-pop"> Indie Pop<br>
+                    <input type="checkbox" name="music-tastes-jazz" value="jazz"> Jazz<br>
+                    <input type="checkbox" name="music-tastes-latin" value="latin"> Latin<br>
+                    <input type="checkbox" name="music-tastes-metal" value="metal"> Metal<br>
+                    <input type="checkbox" name="music-tastes-pop" value="pop"> Pop<br>
+                    <input type="checkbox" name="music-tastes-progressive" value="progressive"> Progressive<br>
+                    <input type="checkbox" name="music-tastes-r&b/soul" value="r&b/soul"> R&B/Soul<br>
+                    <input type="checkbox" name="music-tastes-reggae" value="reggae"> Reggae<br>
+                    <input type="checkbox" name="music-tastes-rock" value="rock"> Rock<br>
+                    <input type="checkbox" name="music-tastes-world" value="world"> World
+                  </p>
+                </div>
+        </fieldset>
+    </div>
+</div>
+
+<br>
+
+<div class="card bg-light">
+    <div class="card-body">
+        <fieldset>
+            <legend>Age</legend>
+                <div>
+<!--                  <label for="age-radio-options">Age</label>-->
+                  <p id="age-radio-options">
+                    <input type="radio" name="age" value="0-12"> Under 12 years old<br>
+                    <input type="radio" name="age" value="12-17"> 12-17 years old<br>
+                    <input type="radio" name="age" value="18-24"> 18-24 years old<br>
+                    <input type="radio" name="age" value="25-34"> 25-34 years old<br>
+                    <input type="radio" name="age" value="35-44"> 35-44 years old<br>
+                    <input type="radio" name="age" value="45-54"> 45-54 years old<br>
+                    <input type="radio" name="age" value="55+"> 55+ years old
+                  </p>
+                </div>
+        </fieldset>
+    </div>
+</div>
+
+<br>
+
+<div class="card bg-light">
+    <div class="card-body">
+        <fieldset>
+            <legend>Location:</legend>
+                <div>
+<!--                  <label for="location">Location:</label>-->
+                  <input type="text" id="location" name="location-name" placeholder="Enter your location here">
+                    <p>Ex: City, State => Portland, OR</p> 
+                </div>
+        </fieldset>
+    </div>
+</div>
+
+<br>
+
+<div class="card bg-light">
+    <div class="card-body">
+        <fieldset>
+            <legend>Email:</legend>
+                <div>
+<!--                  <label for="email-input-id">Email:</label>-->
+                  <input type="email" id="email-input-id" name="email-name" placeholder="Enter email here">  
+                </div>
+        </fieldset>
+    </div>
+</div>
+
+<!--  <fieldset>-->
+<!--    <legend>User Info</legend>-->
+<!--    <div>-->
+<!--      <label for="frequency-id">On average, how often do you attend live music events?</label>-->
+<!--      <p id="frequency-id">-->
+<!--        <input type="radio" name="frequency" value="0"> 0 times a year<br>-->
+<!--        <input type="radio" name="frequency" value="1-3"> 1-3 times a year<br>-->
+<!--        <input type="radio" name="frequency" value="4-6"> 4-6 times a year<br>-->
+<!--        <input type="radio" name="frequency" value="7-12"> 7-12 times a year<br>-->
+<!--        <input type="radio" name="frequency" value="12-24"> 1 or 2 times a month<br>-->
+<!--        <input type="radio" name="frequency" value="25+"> 3+ times a month-->
+<!--      </p>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--      <label for="music-represented-city">Do you feel your taste in music represented in your city?</label>-->
+<!--      <p id="music-represented-city">-->
+<!--        <input type="radio" name="music-represented" value="yes"> Yes<br>-->
+<!--        <input type="radio" name="music-represented" value="no"> No-->
+<!--      </p>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--      <label for="music-tastes-id">Check some of your favorite genres to see live.</label>-->
+<!--      <p id="music-tastes-id">-->
+<!--        <input type="checkbox" name="music-tastes-alternative" value="alternative"> Alternative<br>-->
+<!--        <input type="checkbox" name="music-tastes-classical" value="classical"> Classical<br>-->
+<!--        <input type="checkbox" name="music-tastes-blues" value="blues"> Blues<br>-->
+<!--        <input type="checkbox" name="music-tastes-country" value="country"> Country<br>-->
+<!--        <input type="checkbox" name="music-tastes-dance" value="dance"> Dance<br>-->
+<!--        <input type="checkbox" name="music-tastes-electronic" value="electronic"> Electronic<br>-->
+<!--        <input type="checkbox" name="music-tastes-hip-hop/rap" value="hip-hop/rap"> Hip-Hop/Rap<br>-->
+<!--        <input type="checkbox" name="music-tastes-indie-pop" value="indie-pop"> Indie Pop<br>-->
+<!--        <input type="checkbox" name="music-tastes-jazz" value="jazz"> Jazz<br>-->
+<!--        <input type="checkbox" name="music-tastes-latin" value="latin"> Latin<br>-->
+<!--        <input type="checkbox" name="music-tastes-metal" value="metal"> Metal<br>-->
+<!--        <input type="checkbox" name="music-tastes-pop" value="pop"> Pop<br>-->
+<!--        <input type="checkbox" name="music-tastes-progressive" value="progressive"> Progressive<br>-->
+<!--        <input type="checkbox" name="music-tastes-r&b/soul" value="r&b/soul"> R&B/Soul<br>-->
+<!--        <input type="checkbox" name="music-tastes-reggae" value="reggae"> Reggae<br>-->
+<!--        <input type="checkbox" name="music-tastes-rock" value="rock"> Rock<br>-->
+<!--        <input type="checkbox" name="music-tastes-world" value="world"> World-->
+<!--      </p>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--      <label for="age-radio-options">Age</label>-->
+<!--      <p id="age-radio-options">-->
+<!--        <input type="radio" name="age" value="0-12"> Under 12 years old<br>-->
+<!--        <input type="radio" name="age" value="12-17"> 12-17 years old<br>-->
+<!--        <input type="radio" name="age" value="18-24"> 18-24 years old<br>-->
+<!--        <input type="radio" name="age" value="25-34"> 25-34 years old<br>-->
+<!--        <input type="radio" name="age" value="35-44"> 35-44 years old<br>-->
+<!--        <input type="radio" name="age" value="45-54"> 45-54 years old<br>-->
+<!--        <input type="radio" name="age" value="55+"> 55+ years old-->
+<!--      </p>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--      <label for="location">Location:</label>-->
+<!--      <input type="text" id="location" name="location-name" placeholder="Enter your location here">-->
+<!--        <p>Ex: City, State => Portland, OR</p> -->
+<!--    </div>-->
+<!--    <div>-->
+<!--      <label for="email-input-id">Email:</label>-->
+<!--      <input type="email" id="email-input-id" name="email-name" placeholder="Enter email here">  -->
+<!--    </div>-->
+
+<!--  </fieldset>-->
+{% endblock %}
