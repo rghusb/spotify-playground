@@ -1,5 +1,7 @@
 """Database Interface"""
 from myapp import db
+from flask import session
+from myapp.models.user_info import UserInfo
 
 
 def create_tables():

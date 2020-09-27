@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <p>For Spotify User: {{ username }}</p>
-    <h1>Would you attend the following live events?</h1>
-    <br>
+    <h1>Would you attend shows by the following artists??</h1>
     <br>
     <form action="/save_survey/{{ username }}" method="POST" id="survey">
       <div id="content">
@@ -15,6 +14,6 @@
           <div>{% block user_info %}{% endblock %}</div>
       </div>
       <br>
-      <input type="submit" class="btn-primary" value="Submit Survey" />
+      <input type="submit" class="btn-success" value="Submit Survey" />
     </form>
 {% endblock %}
