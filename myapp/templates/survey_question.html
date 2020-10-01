@@ -4,8 +4,10 @@
   {% for artist in top_artists_short_term %}
         <div class="card bg-light">
             <div class="card-body">
+                <h3>{{ artist["name"] }}</h3>
+                <br>
                 <fieldset>
-                    <legend>{{ artist["name"] }}?</legend>
+                    <p><b>Would you see this artist live?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-short-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-short-term-yes" name="{{ artist['name'] }}-top-artist-short-term" value="yes">
@@ -16,7 +18,7 @@
                     </p>
                 </fieldset>
                 <fieldset>
-                    <legend>Local artist like {{ artist["name"] }}?</legend>
+                    <p><b>What about a similar local artist?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-local-short-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-local-short-term-yes" name="{{ artist['name'] }}-top-artist-local-short-term" value="yes">
@@ -24,6 +26,17 @@
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-local-short-term-no">No</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-local-short-term-no" name="{{ artist['name'] }}-top-artist-local-short-term" value="no">
+                    </p>
+                </fieldset>
+                <fieldset>
+                    <p><b>Have you ever actually seen this artist?</b></p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-yes">Yes</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-yes" name="{{ artist['name'] }}-seen-artist" value="yes">
+                    </p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-no">No</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-no" name="{{ artist['name'] }}-seen-artist" value="no">
                     </p>
                 </fieldset>
             </div>
@@ -37,8 +50,10 @@
   {% for artist in top_tracks_short_term %}
         <div class="card bg-light">
             <div class="card-body">
+                <h3>{{ artist["name"] }}</h3>
+                <br>
                 <fieldset>
-                    <legend>{{ artist["name"] }}?</legend>
+                    <p><b>Would you see this artist live?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-track-short-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-short-term-yes" name="{{ artist['name'] }}-top-track-short-term" value="yes">
@@ -49,7 +64,7 @@
                     </p>
                 </fieldset>
                 <fieldset>
-                    <legend>Local artist like {{ artist["name"] }}?</legend>
+                    <p><b>What about a similar local artist?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-track-local-short-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-local-short-term-yes" name="{{ artist['name'] }}-top-track-local-short-term" value="yes">
@@ -57,6 +72,17 @@
                     <p>
                         <label for="{{ artist['name'] }}-top-track-local-short-term-no">No</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-local-short-term-no" name="{{ artist['name'] }}-top-track-local-short-term" value="no">
+                    </p>
+                </fieldset>
+                <fieldset>
+                    <p><b>Have you ever actually seen this artist?</b></p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-yes">Yes</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-yes" name="{{ artist['name'] }}-seen-artist" value="yes">
+                    </p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-no">No</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-no" name="{{ artist['name'] }}-seen-artist" value="no">
                     </p>
                 </fieldset>
             </div>
@@ -71,8 +97,10 @@
   {% for artist in top_artists_medium_term %}
         <div class="card bg-light">
             <div class="card-body">
+                <h3>{{ artist["name"] }}</h3>
+                <br>
                 <fieldset>
-                    <legend>{{ artist["name"] }}?</legend>
+                    <p><b>Would you see this artist live?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-medium-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-medium-term-yes" name="{{ artist['name'] }}-top-artist-medium-term" value="yes">
@@ -83,7 +111,7 @@
                     </p>
                 </fieldset>
                 <fieldset>
-                    <legend>Local artist like {{ artist["name"] }}?</legend>
+                    <p><b>What about a similar local artist?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-local-medium-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-local-medium-term-yes" name="{{ artist['name'] }}-top-artist-local-medium-term" value="yes">
@@ -91,6 +119,17 @@
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-local-medium-term-no">No</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-local-medium-term-no" name="{{ artist['name'] }}-top-artist-local-medium-term" value="no">
+                    </p>
+                </fieldset>
+                <fieldset>
+                    <p><b>Have you ever actually seen this artist?</b></p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-yes">Yes</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-yes" name="{{ artist['name'] }}-seen-artist" value="yes">
+                    </p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-no">No</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-no" name="{{ artist['name'] }}-seen-artist" value="no">
                     </p>
                 </fieldset>
             </div>
@@ -104,8 +143,10 @@
   {% for artist in top_tracks_medium_term %}
         <div class="card bg-light">
             <div class="card-body">
+                <h3>{{ artist["name"] }}</h3>
+                <br>
                 <fieldset>
-                    <legend>{{ artist["name"] }}?</legend>
+                    <p><b>Would you see this artist live?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-track-medium-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-medium-term-yes" name="{{ artist['name'] }}-top-track-medium-term" value="yes">
@@ -116,7 +157,7 @@
                     </p>
                 </fieldset>
                 <fieldset>
-                    <legend>Local artist like {{ artist["name"] }}?</legend>
+                    <p><b>What about a similar local artist?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-track-local-medium-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-local-medium-term-yes" name="{{ artist['name'] }}-top-track-local-medium-term" value="yes">
@@ -124,6 +165,17 @@
                     <p>
                         <label for="{{ artist['name'] }}-top-track-local-medium-term-no">No</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-local-medium-term-no" name="{{ artist['name'] }}-top-track-local-medium-term" value="no">
+                    </p>
+                </fieldset>
+                <fieldset>
+                    <p><b>Have you ever actually seen this artist?</b></p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-yes">Yes</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-yes" name="{{ artist['name'] }}-seen-artist" value="yes">
+                    </p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-no">No</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-no" name="{{ artist['name'] }}-seen-artist" value="no">
                     </p>
                 </fieldset>
             </div>
@@ -138,8 +190,10 @@
   {% for artist in top_artists_long_term %}
         <div class="card bg-light">
             <div class="card-body">
+                <h3>{{ artist["name"] }}</h3>
+                <br>
                 <fieldset>
-                    <legend>{{ artist["name"] }}?</legend>
+                    <p><b>Would you see this artist live?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-long-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-long-term-yes" name="{{ artist['name'] }}-top-artist-long-term" value="yes">
@@ -150,7 +204,7 @@
                     </p>
                 </fieldset>
                 <fieldset>
-                    <legend>Local artist like {{ artist["name"] }}?</legend>
+                    <p><b>What about a similar local artist?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-local-long-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-local-long-term-yes" name="{{ artist['name'] }}-top-artist-local-long-term" value="yes">
@@ -158,6 +212,17 @@
                     <p>
                         <label for="{{ artist['name'] }}-top-artist-local-long-term-no">No</label>
                         <input type="radio" id="{{ artist['name'] }}-top-artist-local-long-term-no" name="{{ artist['name'] }}-top-artist-local-long-term" value="no">
+                    </p>
+                </fieldset>
+                <fieldset>
+                    <p><b>Have you ever actually seen this artist?</b></p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-yes">Yes</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-yes" name="{{ artist['name'] }}-seen-artist" value="yes">
+                    </p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-no">No</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-no" name="{{ artist['name'] }}-seen-artist" value="no">
                     </p>
                 </fieldset>
             </div>
@@ -171,8 +236,10 @@
   {% for artist in top_tracks_long_term %}
         <div class="card bg-light">
             <div class="card-body">
+                <h3>{{ artist["name"] }}</h3>
+                <br>
                 <fieldset>
-                    <legend>{{ artist["name"] }}?</legend>
+                    <p><b>Would you see this artist live?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-track-long-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-long-term-yes" name="{{ artist['name'] }}-top-track-long-term" value="yes">
@@ -183,7 +250,7 @@
                     </p>
                 </fieldset>
                 <fieldset>
-                    <legend>Local artist like {{ artist["name"] }}?</legend>
+                    <p><b>What about a similar local artist?</b></p>
                     <p>
                         <label for="{{ artist['name'] }}-top-track-local-long-term-yes">Yes</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-local-long-term-yes" name="{{ artist['name'] }}-top-track-local-long-term" value="yes">
@@ -191,6 +258,17 @@
                     <p>
                         <label for="{{ artist['name'] }}-top-track-local-long-term-no">No</label>
                         <input type="radio" id="{{ artist['name'] }}-top-track-local-long-term-no" name="{{ artist['name'] }}-top-track-local-long-term" value="no">
+                    </p>
+                </fieldset>
+                <fieldset>
+                    <p><b>Have you ever actually seen this artist?</b></p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-yes">Yes</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-yes" name="{{ artist['name'] }}-seen-artist" value="yes">
+                    </p>
+                    <p>
+                        <label for="{{ artist['name'] }}-seen-artist-no">No</label>
+                        <input type="radio" id="{{ artist['name'] }}-seen-artist-no" name="{{ artist['name'] }}-seen-artist" value="no">
                     </p>
                 </fieldset>
             </div>
@@ -225,7 +303,7 @@
 <div class="card bg-light">
     <div class="card-body">
         <fieldset>
-            <legend>Do you feel your taste in music represented in your city?</legend>
+            <legend>Do you feel as if your taste in music is represented by the live music events in your city?</legend>
                 <div>
 <!--                  <label for="music-represented-city">Do you feel your taste in music represented in your city?</label>-->
                   <p id="music-represented-city">
@@ -297,10 +375,9 @@
     <div class="card-body">
         <fieldset>
             <legend>Location (Optional):</legend>
+            <p><i>Ex: City, State => Portland, OR</i></p>
                 <div>
-<!--                  <label for="location">Location:</label>-->
-                  <input type="text" id="location" name="location-name" placeholder="Enter your location here">
-                    <p>Ex: City, State => Portland, OR</p> 
+                    <input type="text" id="location" name="location-name" placeholder="Enter location here">
                 </div>
         </fieldset>
     </div>
@@ -312,8 +389,8 @@
     <div class="card-body">
         <fieldset>
             <legend>Email (Optional):</legend>
+            <p><i>If you're open to being contacted in the future for additional feedback.</i></p>
                 <div>
-<!--                  <label for="email-input-id">Email:</label>-->
                   <input type="email" id="email-input-id" name="email-name" placeholder="Enter email here">  
                 </div>
         </fieldset>

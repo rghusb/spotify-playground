@@ -431,6 +431,18 @@ def _save_survey_form(form: dict, username: str) -> None:
             )
             db.session.add(new_user_info)
 
+    def _save_seen_artists(key: str, value: str, user: users.Users):
+        question_type = "seen-artist"
+        answer = _get_artist(key)
+
+        if value == "yes":
+            logger.info(f"User: {user} - Question Type: {question_type} - Answer: {answer}")
+            if user and question_type and answer:
+                new_user_info = user_info.add_user_info(
+                    user.get_user_id(), question_type, answer
+                )
+                db.session.add(new_user_info)
+
     # Start function here #
 
     if not isinstance(form, dict):
@@ -459,6 +471,8 @@ def _save_survey_form(form: dict, username: str) -> None:
             or "email-name" in input_key
         ):
             _user_info_survey(input_key, input_value, current_user)
+        elif "seen-artist" in input_key:
+            _save_seen_artists(input_key, input_value, current_user)
         else:
             raise RuntimeError("Error - Survey question type not located.")
 
