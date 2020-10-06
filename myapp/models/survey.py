@@ -1,14 +1,7 @@
 """"""
-from typing import Optional
+import datetime
+
 from myapp import db
-from myapp import exceptions
-
-# from myapp.models.top_tracks import TopTracks
-# from myapp.models.followed_artists import FollowedArtists
-# from myapp.models.top_artists import TopArtists
-# from myapp.models.saved_tracks import SavedTracks
-
-from myapp.models.users import Users
 
 
 class Survey(db.Model):
@@ -28,6 +21,9 @@ class Survey(db.Model):
     answer = db.Column("Answer", db.String(64))
 
     time_frame = db.Column("TimeFrame", db.String(64))  # Short, Medium, Long term
+
+    # Date of answer submission
+    date_created = db.Column("DateCreated", db.DateTime, default=datetime.datetime.utcnow)
 
 
 def add_survey(

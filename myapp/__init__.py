@@ -171,6 +171,7 @@ def login():
             )
 
         except Exception as exc:
+            session.clear()
             logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
             return render_template(
                 "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
@@ -392,14 +393,15 @@ def _save_survey_form(form: dict, username: str) -> None:
             response = _get_bool(value)
             time_range = _get_time_range(key)
 
-        logger.info(
-            f"User: {user} - Artist: {artist} - Response: {response} - Response Type: {response_type}"
-        )
         if user and artist and response_type and response:
+            logger.info(
+                f"User: {user} - Artist: {artist} - Response: {response} - Response Type: {response_type}"
+            )
             new_survey = survey.add_survey(
                 user.get_user_id(), artist, response_type, response, time_range,
             )
             db.session.add(new_survey)
+            db.session.commit()
 
     def _user_info_survey(key: str, value: str, user: users.Users):
         question_type = None
@@ -424,24 +426,30 @@ def _save_survey_form(form: dict, username: str) -> None:
             question_type = "email"
             answer = value
 
-        logger.info(f"User: {user} - Question Type: {question_type} - Answer: {answer}")
         if user and question_type and answer:
+            logger.info(
+                f"User: {user} - Question Type: {question_type} - Answer: {answer}"
+            )
             new_user_info = user_info.add_user_info(
                 user.get_user_id(), question_type, answer
             )
             db.session.add(new_user_info)
+            db.session.commit()
 
     def _save_seen_artists(key: str, value: str, user: users.Users):
         question_type = "seen-artist"
         answer = _get_artist(key)
 
         if value == "yes":
-            logger.info(f"User: {user} - Question Type: {question_type} - Answer: {answer}")
+            logger.info(
+                f"User: {user} - Question Type: {question_type} - Answer: {answer}"
+            )
             if user and question_type and answer:
                 new_user_info = user_info.add_user_info(
                     user.get_user_id(), question_type, answer
                 )
                 db.session.add(new_user_info)
+                db.session.commit()
 
     # Start function here #
 
@@ -475,8 +483,6 @@ def _save_survey_form(form: dict, username: str) -> None:
             _save_seen_artists(input_key, input_value, current_user)
         else:
             raise RuntimeError("Error - Survey question type not located.")
-
-    db.session.commit()
 
 
 # authorization-code-flow Step 2.
