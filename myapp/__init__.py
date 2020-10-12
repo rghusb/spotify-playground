@@ -163,7 +163,7 @@ def login():
             return redirect(url_for("user_survey", username=str(exc)))
 
         except exceptions.NoUserData as exc:
-            session.clear()
+            # session.clear()
             logger.error(f"No user spotify data for: {str(exc)}")
             return render_template(
                 "error.html",
@@ -173,7 +173,7 @@ def login():
             )
 
         except Exception as exc:
-            session.clear()
+            # session.clear()
             logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
             return render_template(
                 "error.html", error=f"{exc.__class__.__name__}: {str(exc)}"
