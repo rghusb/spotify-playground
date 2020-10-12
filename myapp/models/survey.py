@@ -23,7 +23,9 @@ class Survey(db.Model):
     time_frame = db.Column("TimeFrame", db.String(64))  # Short, Medium, Long term
 
     # Date of answer submission
-    date_created = db.Column("DateCreated", db.DateTime, default=datetime.datetime.utcnow)
+    date_created = db.Column(
+        "DateCreated", db.DateTime, default=datetime.datetime.utcnow
+    )
 
 
 def add_survey(

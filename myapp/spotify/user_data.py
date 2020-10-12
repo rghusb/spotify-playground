@@ -38,6 +38,14 @@ class DataPull(NamedTuple):
     type: str
 
 
+class CurrentUser(NamedTuple):
+    """"""
+
+    username: str
+    display_name: Optional[str]
+    email: Optional[str]
+
+
 def get_current_user_spotify_oath() -> spotipy.oauth2.SpotifyOAuth:
     """"""
     scope = " ".join([READ_EMAIL_SCOPE, TOP_READ_SCOPE])
@@ -66,9 +74,15 @@ def get_authorized_spotify(auth_token=None) -> spotipy.Spotify:
         return user_spotify
 
 
-def get_current_user_username(user_spotify):
+def get_current_user(user_spotify) -> CurrentUser:
     """"""
-    return user_spotify.current_user().get("id")
+    print(f"Current User: {user_spotify.current_user()}")
+    current_user = user_spotify.current_user()
+    return CurrentUser(
+        username=current_user.get("id"),
+        display_name=current_user.get("display_name"),
+        email=current_user.get("email"),
+    )
 
 
 def get_current_user_top_artists(

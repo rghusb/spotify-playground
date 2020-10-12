@@ -65,7 +65,7 @@ from myapp.spotify.main import (
 from myapp.spotify.user_data import (
     get_current_user_spotify_oath,
     get_authorized_spotify,
-    get_current_user_username,
+    get_current_user,
 )
 
 # Initialize here for db.create_all()
@@ -131,15 +131,15 @@ def login():
 
             user_sp = get_authorized_spotify(auth_token=token)
 
-            spotify_username = get_current_user_username(user_sp)
-            if not spotify_username:
+            current_user = get_current_user(user_sp)
+            if not current_user.username:
                 logger.error(f"Couldn't get current user Spotify username")
                 return render_template(
                     "error.html", error=f"Unable to access current user's username."
                 )
 
             # Add user
-            user = users.add_user(spotify_username)
+            user = users.add_user(current_user.username, current_user.display_name, current_user.email)
             db.session.add(user)
 
             for time_range in constants.SPOTIFY_TERM_LENGTHS:
@@ -154,7 +154,7 @@ def login():
             # Save database session
             db.session.commit()
 
-            return redirect(url_for("user_survey", username=spotify_username))
+            return redirect(url_for("user_survey", username=current_user.username))
 
         except exceptions.UserAlreadyExistsError as exc:
             logger.warning("User already exists, redirecting to survey")
