@@ -67,7 +67,7 @@ def add_spotify_user_data(
             user_spotify, limit=number_of_tracks, time_range=time_range
         )
         if not top_tracks_pull:
-            raise exceptions.NoUserData
+            raise exceptions.NoUserData(user.display_name or user.username)
         _add_top_tracks(user, top_tracks_pull, time_range)
 
     if top_artists_flag:
@@ -75,7 +75,7 @@ def add_spotify_user_data(
             user_spotify, number_of_tracks, 0, time_range
         )
         if not top_artists_pull:
-            raise exceptions.NoUserData
+            raise exceptions.NoUserData(user.display_name or user.username)
         _add_top_artists(user, top_artists_pull, time_range)
 
 

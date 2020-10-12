@@ -139,7 +139,9 @@ def login():
                 )
 
             # Add user
-            user = users.add_user(current_user.username, current_user.display_name, current_user.email)
+            user = users.add_user(
+                current_user.username, current_user.display_name, current_user.email
+            )
             db.session.add(user)
 
             for time_range in constants.SPOTIFY_TERM_LENGTHS:
@@ -160,14 +162,14 @@ def login():
             logger.warning("User already exists, redirecting to survey")
             return redirect(url_for("user_survey", username=str(exc)))
 
-        except exceptions.NoUserData:
+        except exceptions.NoUserData as exc:
             session.clear()
-            logger.error("No user spotify data")
+            logger.error(f"No user spotify data for: {str(exc)}")
             return render_template(
                 "error.html",
-                error=f"No data associated with entered Spotify account. "
-                f"Please log out with the following link and sign in with an active account. "
-                f"(https://www.spotify.com/logout/)",
+                error=f"No data associated with entered Spotify account.  "
+                f"Please log out with the following link (https://www.spotify.com/logout/) and sign in with an active account.  "
+                f"There is a chance data isn't associated if you don't have a lot of listening, or don't have a premium account.",
             )
 
         except Exception as exc:
