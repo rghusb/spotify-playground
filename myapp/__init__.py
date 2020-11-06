@@ -167,9 +167,9 @@ def login():
             logger.error(f"No user spotify data for: {str(exc)}")
             return render_template(
                 "error.html",
-                error=f"No data associated with entered Spotify account.  "
-                f"Please log out with the following link (https://www.spotify.com/logout/) and sign in with an active account.  "
-                f"There is a chance data isn't associated if you don't have a lot of listening, or don't have a premium account.",
+                error=f"No data associated with the given Spotify account.  "
+                f"Please log out with the following link (https://www.spotify.com/logout/) and sign in with a more active account.  "
+                f"If the Spotify account is not used regularly, then no listening trends are expected.",
             )
 
         except Exception as exc:
@@ -304,7 +304,7 @@ def user_survey(username=None):
                     sorted_top_tracks_long_term,
                 )
 
-                qs = 5
+                qs = 3
                 return render_template(
                     "survey_question.html",
                     username=username,
