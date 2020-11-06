@@ -45,7 +45,7 @@ def yes_votes_top_artists(yes_votes):
     yes_votes_non_local = db.session.query(Survey).filter_by(answer="yes", question_type="top-artist").count()
     yes_votes_local = db.session.query(Survey).filter_by(answer="yes", question_type="top-artist-local").count()
     ratio = (yes_votes_non_local + yes_votes_local) / yes_votes
-    print(f"Top tracks: {ratio * 100:.2f}%")
+    print(f"Top artists: {ratio * 100:.2f}%")
     return ratio
 
 
