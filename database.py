@@ -365,6 +365,23 @@ def excel_output():
             "frequency",
             "musicTastes",
             "musicRepresentation",
+            "alternative",
+            "classical",
+            "blues",
+            "country",
+            "dance",
+            "electronic",
+            "hip-hop/rap",
+            "indie-pop",
+            "jazz",
+            "latin",
+            "metal",
+            "pop",
+            "progressive",
+            "r&b/soul",
+            "reggae",
+            "rock",
+            "world",
         ]
         spreadsheet.writerow(headers)
 
@@ -391,7 +408,8 @@ def excel_output():
                 actual_response, local_response = _yes_or_no(user_artist_data, category)
 
                 user_info = user_info_data.get(user_id, {})
-                seen_artist = user_info.get("seen-artist")
+                seen_artists = user_info.get("seen-artist")
+                seen_artist = "yes" if artist_name in seen_artists else "no"
                 age = user_info.get("age")
                 frequency = user_info.get("frequency")
                 music_tastes = user_info.get("music-tastes")
@@ -407,8 +425,24 @@ def excel_output():
                     seen_artist,
                     age,
                     frequency,
-                    music_tastes,
                     music_representation,
+                    "yes" if "alternative" in music_tastes else None,
+                    "yes" if "classical" in music_tastes else None,
+                    "yes" if "blues" in music_tastes else None,
+                    "yes" if "country" in music_tastes else None,
+                    "yes" if "dance" in music_tastes else None,
+                    "yes" if "electronic" in music_tastes else None,
+                    "yes" if "hip-hop/rap" in music_tastes else None,
+                    "yes" if "indie-pop" in music_tastes else None,
+                    "yes" if "jazz" in music_tastes else None,
+                    "yes" if "latin" in music_tastes else None,
+                    "yes" if "metal" in music_tastes else None,
+                    "yes" if "pop" in music_tastes else None,
+                    "yes" if "progressive" in music_tastes else None,
+                    "yes" if "r&b/soul" in music_tastes else None,
+                    "yes" if "reggae" in music_tastes else None,
+                    "yes" if "rock" in music_tastes else None,
+                    "yes" if "world" in music_tastes else None,
                 ]
                 spreadsheet.writerow(row)
 
