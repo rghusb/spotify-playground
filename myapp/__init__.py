@@ -304,7 +304,7 @@ def user_survey(username=None):
                     sorted_top_tracks_long_term,
                 )
 
-                qs = 3
+                qs = 5
                 return render_template(
                     "survey_question.html",
                     username=username,
