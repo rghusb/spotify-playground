@@ -408,11 +408,11 @@ def excel_output():
                 actual_response, local_response = _yes_or_no(user_artist_data, category)
 
                 user_info = user_info_data.get(user_id, {})
-                seen_artists = user_info.get("seen-artist")
+                seen_artists = user_info.get("seen-artist", [])
                 seen_artist = "yes" if artist_name in seen_artists else "no"
                 age = user_info.get("age")
                 frequency = user_info.get("frequency")
-                music_tastes = user_info.get("music-tastes")
+                music_tastes = user_info.get("music-tastes", [])
                 music_representation = user_info.get("music-represented")
 
                 row = [
