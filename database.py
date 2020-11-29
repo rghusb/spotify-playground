@@ -447,16 +447,32 @@ def excel_output():
                 spreadsheet.writerow(row)
 
 
+def survey_throughput():
+    created_user_ids = []
+    for value in db.session.query(Survey.user_id).distinct():
+        created_user_ids.append(value[0])
+
+    completed_user_ids = []
+    for value in db.session.query(UserInfo.user_id).distinct():
+        unique_user_id = value[0]
+        completed_user_ids.append(unique_user_id)
+
+    print(f"Total created user ids: {len(created_user_ids)} - {created_user_ids}")
+    print(f"Total completed surveys: {len(completed_user_ids)} - {completed_user_ids}")
+
+
 """  MAIN  """
 
 
 if __name__ == "__main__":
+    survey_throughput()
+
     # data = group_by_user_and_artist()
     # for user_id in data:
     #     for artist in data[user_id]:
     #         print(f"Artist: {artist} and Data: {data[user_id][artist]}")
 
-    excel_output()
+    # excel_output()
     # print(user_info_by_user_id())
 
     # votes()
