@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title_content %}<title>Error</title>{% endblock %}
+{% block title_content %}<title>Thanks</title>{% endblock %}
 {% block head_content %}
     <style>
             .center {
@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
     <div class="center">
-            <h2>{{ error }}</h2>
+            <h2>{{ message }}</h2>
             <br>
             <form method="GET" action="/">
                 <input type="submit" value="Go Home">

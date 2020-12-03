@@ -92,18 +92,18 @@ def redirect_home():
     return redirect(url_for("index"))
 
 
-@app.route("/clear_session")
-def clear_session():
-    logger.info("SESSION CLEAR")
-    session.clear()
-    return "<h1>Session cleared!</h1>"
+# @app.route("/clear_session")
+# def clear_session():
+#     logger.info("SESSION CLEAR")
+#     session.clear()
+#     return "<h1>Session cleared!</h1>"
 
 
 @app.route("/thank_you/")
 def thank_you():
     logger.info("THANK YOU")
     return render_template(
-        "error.html", error="Thank you for taking the tastes survey!"
+        "thank_you.html", message="Thank you for taking the tastes survey!"
     )
 
 
