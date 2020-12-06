@@ -44,7 +44,7 @@ class Users(db.Model):
         return self.username
 
 
-def add_user(username: str, display_name: str, email: str) -> Users:
+def add_user(username: str, display_name: Optional[str], email: Optional[str]) -> Users:
     """"""
     if query_username(username) is not None:
         # return query_username(username)  # testing

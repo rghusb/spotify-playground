@@ -48,7 +48,8 @@ class CurrentUser(NamedTuple):
 
 def get_current_user_spotify_oath() -> spotipy.oauth2.SpotifyOAuth:
     """"""
-    scope = " ".join([READ_EMAIL_SCOPE, TOP_READ_SCOPE])
+    # scope = " ".join([READ_EMAIL_SCOPE, TOP_READ_SCOPE])
+    scope = " ".join([TOP_READ_SCOPE])
     spotify_oauth = spotipy.oauth2.SpotifyOAuth(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,

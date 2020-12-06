@@ -185,7 +185,6 @@ def login():
             #  if you reuse a SpotifyOAuth object.
             sp_oauth = get_current_user_spotify_oath()
             auth_url = sp_oauth.get_authorize_url()
-            print(auth_url)
             return redirect(auth_url)
         except Exception as exc:
             logger.exception(f"{exc.__class__.__name__}: {str(exc)}")
@@ -535,5 +534,6 @@ def _get_token(sesh):
             sesh.get("token_info").get("refresh_token")
         )
 
-    token_valid = True
+    if token_info:
+        token_valid = True
     return token_info, token_valid
